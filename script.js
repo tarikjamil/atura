@@ -56,18 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
         gap: "24rem",
         arrows: false,
       },
-      767: {
-        // Mobile Landscape
-        perPage: 1,
-        gap: "24rem",
-        arrows: false,
-      },
-      479: {
-        // Mobile Portrait
-        perPage: 1,
-        gap: "24rem",
-        arrows: false,
-      },
     },
   });
   splide.mount();
