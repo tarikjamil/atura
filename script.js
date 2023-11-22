@@ -99,7 +99,7 @@ svgs.forEach((svg) => {
         trigger: svg,
         scrub: true,
         start: "top center", // Adjust these values based on your layout
-        end: "bottom bottom",
+        end: "bottom center",
         markers: true, // Useful for debugging
       },
     });
