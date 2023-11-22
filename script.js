@@ -98,8 +98,8 @@ svgs.forEach((svg) => {
       scrollTrigger: {
         trigger: svg,
         scrub: true,
-        start: "top bottom", // Adjust these values based on your layout
-        end: "bottom top",
+        start: "top center", // Adjust these values based on your layout
+        end: "bottom bottom",
         markers: true, // Useful for debugging
       },
     });
