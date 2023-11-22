@@ -67,3 +67,23 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   splide.mount();
 });
+
+// svg lines drawing
+
+gsap.utils.toArray(".svg--top, .svg--bottom").forEach((svg) => {
+  let length = svg.getTotalLength();
+
+  // Set up initial properties
+  gsap.set(svg, { strokeDasharray: length, strokeDashoffset: length });
+
+  // Create the scroll-triggered animation
+  gsap.to(svg, {
+    strokeDashoffset: 0,
+    scrollTrigger: {
+      trigger: svg,
+      start: "top bottom", // Animation starts when the top of SVG hits the bottom of the viewport
+      end: "bottom top", // Animation ends when the bottom of SVG leaves the top of the viewport
+      scrub: true, // Smooth scrubbing effect
+    },
+  });
+});
