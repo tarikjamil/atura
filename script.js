@@ -102,7 +102,7 @@ svgs.forEach((svg) => {
         scrub: true,
         start: "top center", // Adjust these values based on your layout
         end: "bottom center",
-        markers: true, // Useful for debugging
+        markers: false, // Useful for debugging
       },
     });
 
