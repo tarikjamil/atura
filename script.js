@@ -40,3 +40,35 @@ function pageLoad() {
   });
 }
 pageLoad();
+
+// slider code
+document.addEventListener("DOMContentLoaded", function () {
+  var splide = new Splide(".is--splide-slider", {
+    type: "slider",
+    perPage: 3,
+    perMove: 1,
+    pagination: false,
+    gap: "26rem",
+    breakpoints: {
+      991: {
+        // Tablet
+        perPage: 1,
+        gap: "24rem",
+        arrows: false,
+      },
+      767: {
+        // Mobile Landscape
+        perPage: 1,
+        gap: "24rem",
+        arrows: false,
+      },
+      479: {
+        // Mobile Portrait
+        perPage: 1,
+        gap: "24rem",
+        arrows: false,
+      },
+    },
+  });
+  splide.mount();
+});
