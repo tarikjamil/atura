@@ -109,3 +109,12 @@ svgs.forEach((svg) => {
     cumulativeLength += pathLength > 0 ? pathLength : 0;
   });
 });
+
+//menu click
+$(".navlink").on("click", function () {
+  $(".close--btn").click();
+});
+
+$(".background--menu").on("click", function () {
+  $(".close--btn").click();
+});
