@@ -70,20 +70,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // svg lines drawing
 
-gsap.utils.toArray(".svg--top, .svg--bottom").forEach((svg) => {
-  let length = svg.getTotalLength();
+const svgs = document.querySelectorAll(".section svg");
 
-  // Set up initial properties
-  gsap.set(svg, { strokeDasharray: length, strokeDashoffset: length });
+svgs.forEach((svg) => {
+  const paths = svg.querySelectorAll("path");
+  const totalLength = Array.from(paths).reduce(
+    (total, path) => total + path.getTotalLength(),
+    0
+  );
 
-  // Create the scroll-triggered animation
-  gsap.to(svg, {
-    strokeDashoffset: 0,
-    scrollTrigger: {
-      trigger: svg,
-      start: "top bottom", // Animation starts when the top of SVG hits the bottom of the viewport
-      end: "bottom top", // Animation ends when the bottom of SVG leaves the top of the viewport
-      scrub: true, // Smooth scrubbing effect
-    },
+  let cumulativeLength = 0;
+
+  paths.forEach((path) => {
+    const pathLength = path.getTotalLength();
+    const start = (cumulativeLength / totalLength) * 100;
+    const end = ((cumulativeLength + pathLength) / totalLength) * 100;
+
+    // Set initial properties
+    gsap.set(path, {
+      strokeDasharray: pathLength,
+      strokeDashoffset: pathLength > 0 ? pathLength : 0,
+    });
+
+    // Create the scroll-triggered animation
+    gsap.to(path, {
+      strokeDashoffset: 0,
+      scrollTrigger: {
+        trigger: svg,
+        scrub: true,
+        start: "top bottom", // Adjust these values based on your layout
+        end: "bottom top",
+        markers: true, // Useful for debugging
+      },
+    });
+
+    cumulativeLength += pathLength > 0 ? pathLength : 0;
   });
 });
