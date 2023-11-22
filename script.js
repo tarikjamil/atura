@@ -48,13 +48,13 @@ document.addEventListener("DOMContentLoaded", function () {
     perPage: 3,
     perMove: 1,
     pagination: false,
+    arrows: false,
     gap: "26rem",
     breakpoints: {
       991: {
         // Tablet
         perPage: 1,
         gap: "24rem",
-        arrows: false,
       },
     },
   });
