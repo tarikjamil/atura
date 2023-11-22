@@ -32,7 +32,7 @@ function pageLoad() {
     duration: 0.5,
   });
   tl.from("[animation=loading]", {
-    y: "20rem",
+    y: "100%",
     opacity: "0",
     stagger: { each: 0.1, from: "start" },
     ease: "Quint.easeOut",
