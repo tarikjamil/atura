@@ -70,9 +70,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // svg lines drawing
 
-const svgs = document.querySelectorAll(".section svg");
+gsap.registerPlugin(ScrollTrigger);
+
+// Select the two specific SVGs
+const svgs = document.querySelectorAll(".svg--top, .svg--bottom");
 
 svgs.forEach((svg) => {
+  // Select all paths within the current SVG
   const paths = svg.querySelectorAll("path");
   const totalLength = Array.from(paths).reduce(
     (total, path) => total + path.getTotalLength(),
@@ -86,20 +90,20 @@ svgs.forEach((svg) => {
     const start = (cumulativeLength / totalLength) * 100;
     const end = ((cumulativeLength + pathLength) / totalLength) * 100;
 
-    // Set initial properties
+    // Set initial properties for the path
     gsap.set(path, {
       strokeDasharray: pathLength,
       strokeDashoffset: pathLength > 0 ? pathLength : 0,
     });
 
-    // Create the scroll-triggered animation
+    // Create the scroll-triggered animation for the path
     gsap.to(path, {
       strokeDashoffset: 0,
       scrollTrigger: {
         trigger: svg,
         scrub: true,
-        start: "top center", // Adjust these values based on your layout
-        end: "bottom center",
+        start: "top bottom", // Adjust these values based on your layout
+        end: "bottom top",
         markers: true, // Useful for debugging
       },
     });
