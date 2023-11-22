@@ -70,8 +70,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // svg lines drawing
 
-gsap.registerPlugin(ScrollTrigger);
-
 // Select the two specific SVGs
 const svgs = document.querySelectorAll(".svg--top, .svg--bottom");
 
@@ -102,8 +100,8 @@ svgs.forEach((svg) => {
       scrollTrigger: {
         trigger: svg,
         scrub: true,
-        start: "top bottom", // Adjust these values based on your layout
-        end: "bottom top",
+        start: "top center", // Adjust these values based on your layout
+        end: "bottom center",
         markers: true, // Useful for debugging
       },
     });
