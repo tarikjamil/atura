@@ -1,33 +1,3 @@
-(function () {
-  // Declare variables
-  let text;
-  let windowWidth = $(window).innerWidth();
-
-  // Function to split text
-  function runSplit() {
-    text = new SplitType("[animation=loading-split]", {
-      types: "lines, words",
-      lineClass: "overflow-hidden",
-      wordClass: "loading-animation-split",
-    });
-  }
-
-  // Run the split function
-  runSplit();
-
-  // Debounce the resize event
-  let debounceTimeout;
-  window.addEventListener("resize", function () {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(function () {
-      if (windowWidth !== $(window).innerWidth()) {
-        windowWidth = $(window).innerWidth();
-        text.revert();
-        runSplit();
-      }
-    }, 250);
-  });
-
   // Register ScrollTrigger plugin
   gsap.registerPlugin(ScrollTrigger);
 
