@@ -223,21 +223,34 @@ document.addEventListener("DOMContentLoaded", function () {
       appartItem.querySelector(".appart-balcon")?.textContent?.trim() || ""
     );
 
-    // Image (plan 3D)
-    const plan3dSrc = appartItem
-      .querySelector(".appart-plan3d")
-      ?.getAttribute("src");
+    // -------- PLAN 3D (image responsive) -------- //
+    const plan3dImage = appartItem.querySelector(".appart-plan3d");
     const plan3dTarget = document.querySelector('[data="plan3d"]');
-    if (plan3dTarget && plan3dSrc) {
-      plan3dTarget.setAttribute("src", plan3dSrc);
-      console.log("🖼️ Image plan3D mise à jour :", plan3dSrc);
+
+    if (plan3dImage && plan3dTarget) {
+      const src = plan3dImage.getAttribute("src");
+      const srcset = plan3dImage.getAttribute("srcset");
+      const sizes = plan3dImage.getAttribute("sizes");
+
+      if (src) {
+        plan3dTarget.setAttribute("src", src);
+        console.log("🖼️ Image src:", src);
+      }
+      if (srcset) {
+        plan3dTarget.setAttribute("srcset", srcset);
+        console.log("🖼️ Image srcset:", srcset);
+      }
+      if (sizes) {
+        plan3dTarget.setAttribute("sizes", sizes);
+        console.log("🖼️ Image sizes:", sizes);
+      }
     }
 
-    // Lien (visite 360°)
+    // -------- VISITE 360° (lien) -------- //
     const visiteLink = appartItem
       .querySelector(".appart-visite360")
       ?.getAttribute("href");
-    const visiteTarget = document.querySelector('[data="visite360"]');
+    const visiteTarget = document.querySelector('a[data="visite360"]');
     if (visiteTarget && visiteLink) {
       visiteTarget.setAttribute("href", visiteLink);
       console.log("🔗 Lien visite360 mis à jour :", visiteLink);
