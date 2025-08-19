@@ -92,6 +92,32 @@ $(document).on("click", ".navlink, .background--menu", function () {
   $(".close--btn").click();
 });
 
+// ---------------------------- Ouvre etages ----------------------------- //
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Étape 0 : Clic sur un étage dans l'image SVG pour ouvrir la popup correspondante
+  const svgPaths = document.querySelectorAll(".img--bg.is--svg [etage]");
+
+  svgPaths.forEach((path) => {
+    path.addEventListener("click", () => {
+      const etage = path.getAttribute("etage");
+
+      // Masquer toutes les popups d'étage
+      document.querySelectorAll(".popup[data-etage]").forEach((p) => {
+        p.style.display = "none";
+      });
+
+      // Afficher la bonne popup
+      const popupToShow = document.querySelector(
+        `.popup[data-etage="${etage}"]`
+      );
+      if (popupToShow) {
+        popupToShow.style.display = "grid";
+      }
+    });
+  });
+});
+
 // ---------------------------- etages ----------------------------- //
 
 document.addEventListener("DOMContentLoaded", function () {
