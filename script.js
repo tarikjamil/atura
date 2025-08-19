@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
       ?.querySelector(".appart-etage")
       ?.textContent?.trim();
     const target = document.querySelector(
-      `.relative.is--apart-plan[data-etage*="${etage}"]`
+      `.relative.is--appart-plan[data-etage*="${etage}"]`
     );
 
     if (target) {
