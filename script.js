@@ -93,12 +93,13 @@ $(document).on("click", ".navlink, .background--menu", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-  // ---------------------- ÉTAPE 0 : Ouvrir la bonne popup d'étage ---------------------- //
+  // ---------------------- ÉTAPE 0 : Ouvrir la popup d'étage ---------------------- //
   const svgPaths = document.querySelectorAll(".img--bg.is--svg [etage]");
 
   svgPaths.forEach((path) => {
     path.addEventListener("click", () => {
       const etage = path.getAttribute("etage");
+      console.log("📂 Étape sélectionnée :", etage);
 
       // Masquer toutes les popups
       document.querySelectorAll(".popup[data-etage]").forEach((p) => {
@@ -111,61 +112,95 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       if (popupToShow) {
         popupToShow.style.display = "grid";
+        console.log("✅ Popup affichée pour étage :", etage);
+      } else {
+        console.warn("❌ Popup introuvable pour étage :", etage);
       }
     });
   });
 
-  // ---------------------- ÉTAPE 1 : Cloner les .appart-plan dans la bonne popup ---------------------- //
-  const appartPlans = document.querySelectorAll(".appart-plan");
-  appartPlans.forEach((plan) => {
-    const wrapper = plan.closest(".w-dyn-item");
-    if (!wrapper) return;
+  // ---------------------- ÉTAPE 1 : Cloner les .appart-plan dans .is--appart-plan ---------------------- //
+  setTimeout(() => {
+    const appartPlans = document.querySelectorAll(".appart-plan");
 
-    const appId = wrapper.querySelector(".appart-number")?.textContent?.trim();
-    const etage = wrapper.querySelector(".appart-etage")?.textContent?.trim();
+    appartPlans.forEach((plan) => {
+      const wrapper = plan.closest(".w-dyn-item");
+      if (!wrapper) return;
 
-    console.log("🧱 Ajout de l'appart-plan", appId, "dans étage", etage);
-    if (!appId || !etage) return;
+      const appId = wrapper
+        .querySelector(".appart-number")
+        ?.textContent?.trim();
+      const etage = wrapper.querySelector(".appart-etage")?.textContent?.trim();
 
-    const target = document.querySelector(
-      `.relative.is--appart-plan[data-etage="${etage}"]`
-    );
-    if (target) {
+      if (!appId || !etage) return;
+
+      const target = document.querySelector(
+        `.relative.is--appart-plan[data-etage="${etage}"]`
+      );
+      if (!target) {
+        console.warn(
+          `❌ Container .relative.is--appart-plan[data-etage="${etage}"] introuvable`
+        );
+        return;
+      }
+
       const clone = plan.cloneNode(true);
       clone.setAttribute("data-etage-app-plan", appId);
 
-      // Inject data-app-id on each <path> inside the clone (based on parent appId)
+      // Injecter le data-app-id sur chaque path
       const paths = clone.querySelectorAll("path");
       paths.forEach((path) => {
         path.setAttribute("data-app-id", appId);
       });
 
       target.appendChild(clone);
-    } else {
-      console.warn(
-        `❌ Container .relative.is--appart-plan[data-etage="${etage}"] introuvable`
+      console.log(
+        `✅ Injecté appart-plan ${appId} dans étage ${etage} avec ${paths.length} path(s)`
       );
-    }
-  });
+    });
+  }, 100); // Petit délai pour s'assurer que Webflow a monté tous les éléments
 
-  // ---------------------- ÉTAPE 2 : Sur clic sur path d’un SVG, mettre à jour les données ---------------------- //
+  // ---------------------- ÉTAPE 2 : Clic sur un path → mettre à jour les données ---------------------- //
   document.body.addEventListener("click", function (e) {
-    const clicked = e.target.closest("[data-app-id]");
-    if (!clicked) return;
+    let clicked = e.target;
+
+    // Debug : afficher l'élément cliqué
+    console.log("🖱️ Click event on:", clicked);
+
+    // Remonter jusqu’à trouver le data-app-id
+    while (clicked && !clicked.hasAttribute("data-app-id")) {
+      clicked = clicked.parentElement;
+    }
+
+    if (!clicked) {
+      console.warn("❌ Aucun data-app-id détecté sur le clic");
+      return;
+    }
 
     const appId = clicked.getAttribute("data-app-id");
+    if (!appId) return;
+    console.log("✅ Appartement sélectionné :", appId);
 
     const appartItem = document
       .querySelector(`.w-dyn-item .appart-number[data-app-id="${appId}"]`)
       ?.closest(".w-dyn-item");
-    if (!appartItem) return;
+    if (!appartItem) {
+      console.warn(`❌ Aucun .w-dyn-item trouvé pour appId ${appId}`);
+      return;
+    }
 
+    // Fonction de remplissage
     const setData = (dataAttr, value) => {
       const el = document.querySelector(`[data="${dataAttr}"]`);
-      if (el) el.textContent = value;
+      if (el) {
+        el.textContent = value;
+        console.log(`↪️ data="${dataAttr}" mis à jour :`, value);
+      } else {
+        console.warn(`⚠️ Élément [data="${dataAttr}"] non trouvé`);
+      }
     };
 
-    // Texte
+    // Mettre à jour les données texte
     setData(
       "number",
       appartItem.querySelector(".appart-number")?.textContent?.trim() || ""
@@ -195,6 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const plan3dTarget = document.querySelector('[data="plan3d"]');
     if (plan3dTarget && plan3dSrc) {
       plan3dTarget.setAttribute("src", plan3dSrc);
+      console.log("🖼️ Image plan3D mise à jour :", plan3dSrc);
     }
 
     // Lien (visite 360°)
@@ -204,6 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const visiteTarget = document.querySelector('[data="visite360"]');
     if (visiteTarget && visiteLink) {
       visiteTarget.setAttribute("href", visiteLink);
+      console.log("🔗 Lien visite360 mis à jour :", visiteLink);
     }
   });
 });
