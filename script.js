@@ -92,22 +92,20 @@ $(document).on("click", ".navlink, .background--menu", function () {
   $(".close--btn").click();
 });
 
-// ---------------------------- Ouvre popup etages ----------------------------- //
-
 document.addEventListener("DOMContentLoaded", function () {
-  // Étape 0 : Clic sur un étage dans l'image SVG pour ouvrir la popup correspondante
+  // ---------------------- ÉTAPE 0 : Ouvrir la bonne popup d'étage ---------------------- //
   const svgPaths = document.querySelectorAll(".img--bg.is--svg [etage]");
 
   svgPaths.forEach((path) => {
     path.addEventListener("click", () => {
       const etage = path.getAttribute("etage");
 
-      // Masquer toutes les popups d'étage
+      // Masquer toutes les popups
       document.querySelectorAll(".popup[data-etage]").forEach((p) => {
         p.style.display = "none";
       });
 
-      // Afficher la bonne popup
+      // Afficher celle correspondant à l’étage cliqué
       const popupToShow = document.querySelector(
         `.popup[data-etage="${etage}"]`
       );
@@ -116,36 +114,35 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
-});
 
-// ---------------------------- etages ----------------------------- //
-
-document.addEventListener("DOMContentLoaded", function () {
-  // Étape 1 : Cloner chaque .appart-plan vers le bon .relative.is--appart-plan
+  // ---------------------- ÉTAPE 1 : Cloner les .appart-plan dans la bonne popup ---------------------- //
   const appartPlans = document.querySelectorAll(".appart-plan");
+
   appartPlans.forEach((plan) => {
-    const appId = plan
-      .closest(".w-dyn-item")
-      ?.querySelector(".appart-number")
-      ?.textContent?.trim();
-    if (!appId) return;
+    const wrapper = plan.closest(".w-dyn-item");
+    if (!wrapper) return;
 
-    const etage = plan
-      .closest(".w-dyn-item")
-      ?.querySelector(".appart-etage")
-      ?.textContent?.trim();
+    const appId = wrapper.querySelector(".appart-number")?.textContent?.trim();
+    const etage = wrapper.querySelector(".appart-etage")?.textContent?.trim();
+
+    console.log("🧱 Ajout de l'appart-plan", appId, "dans étage", etage);
+    if (!appId || !etage) return;
+
     const target = document.querySelector(
-      `.relative.is--appart-plan[data-etage*="${etage}"]`
+      `.relative.is--appart-plan[data-etage="${etage}"]`
     );
-
     if (target) {
       const clone = plan.cloneNode(true);
       clone.setAttribute("data-etage-app-plan", appId);
       target.appendChild(clone);
+    } else {
+      console.warn(
+        `❌ Container .relative.is--appart-plan[data-etage="${etage}"] introuvable`
+      );
     }
   });
 
-  // Étape 2 : Gérer les clics sur les paths avec data-app-id
+  // ---------------------- ÉTAPE 2 : Sur clic sur path d’un SVG, mettre à jour les données ---------------------- //
   document.body.addEventListener("click", function (e) {
     const clicked = e.target.closest("[data-app-id]");
     if (!clicked) return;
@@ -162,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (el) el.textContent = value;
     };
 
-    // Mettre à jour les données texte
+    // Texte
     setData(
       "number",
       appartItem.querySelector(".appart-number")?.textContent?.trim() || ""
@@ -185,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
       appartItem.querySelector(".appart-balcon")?.textContent?.trim() || ""
     );
 
-    // Mettre à jour l’image (plan 3D)
+    // Image (plan 3D)
     const plan3dSrc = appartItem
       .querySelector(".appart-plan3d")
       ?.getAttribute("src");
@@ -194,9 +191,9 @@ document.addEventListener("DOMContentLoaded", function () {
       plan3dTarget.setAttribute("src", plan3dSrc);
     }
 
-    // Mettre à jour le lien (visite 360)
+    // Lien (visite 360°)
     const visiteLink = appartItem
-      .querySelector(".appart-3dlink")
+      .querySelector(".appart-visite360")
       ?.getAttribute("href");
     const visiteTarget = document.querySelector('[data="visite360"]');
     if (visiteTarget && visiteLink) {
