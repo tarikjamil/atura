@@ -133,6 +133,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (target) {
       const clone = plan.cloneNode(true);
       clone.setAttribute("data-etage-app-plan", appId);
+
+      // Inject data-app-id on each <path> inside the clone (based on parent appId)
+      const paths = clone.querySelectorAll("path");
+      paths.forEach((path) => {
+        path.setAttribute("data-app-id", appId);
+      });
+
       target.appendChild(clone);
     } else {
       console.warn(
