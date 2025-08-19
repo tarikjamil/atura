@@ -251,9 +251,12 @@ document.addEventListener("DOMContentLoaded", function () {
       .querySelector(".appart-visite360")
       ?.getAttribute("href");
     const visiteTarget = document.querySelector('a[data="visite360"]');
+
     if (visiteTarget && visiteLink) {
       visiteTarget.setAttribute("href", visiteLink);
       console.log("🔗 Lien visite360 mis à jour :", visiteLink);
+    } else {
+      console.warn("⚠️ Lien visite360 introuvable ou href vide");
     }
   });
 });
