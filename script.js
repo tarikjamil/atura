@@ -92,7 +92,7 @@ $(document).on("click", ".navlink, .background--menu", function () {
   $(".close--btn").click();
 });
 
-// ---------------------------- Ouvre etages ----------------------------- //
+// ---------------------------- Ouvre popup etages ----------------------------- //
 
 document.addEventListener("DOMContentLoaded", function () {
   // Étape 0 : Clic sur un étage dans l'image SVG pour ouvrir la popup correspondante
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // ---------------------------- etages ----------------------------- //
 
 document.addEventListener("DOMContentLoaded", function () {
-  // Étape 1 : Cloner chaque .appart-plan vers le bon .relative.is--apart-plan
+  // Étape 1 : Cloner chaque .appart-plan vers le bon .relative.is--appart-plan
   const appartPlans = document.querySelectorAll(".appart-plan");
   appartPlans.forEach((plan) => {
     const appId = plan
