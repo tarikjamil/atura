@@ -116,8 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // ---------------------- ÉTAPE 1 : Cloner les .appart-plan dans la bonne popup ---------------------- //
-  const appartPlans = document.querySelectorAll(".appart-plan");
-
+  const appartPlans = document.querySelectorAll(".appart-plan .w-embed svg");
   appartPlans.forEach((plan) => {
     const wrapper = plan.closest(".w-dyn-item");
     if (!wrapper) return;
