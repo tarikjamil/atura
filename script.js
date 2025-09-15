@@ -99,6 +99,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const levelPaths = document.querySelectorAll(".img--bg.is--svg path");
   levelPaths.forEach((path, index) => {
     path.setAttribute("level", index + 1);
+    // Set initial opacity
+    gsap.set(path, { opacity: 1 });
   });
 
   // STEP 2: Listen to click and hover on any level
@@ -460,7 +462,77 @@ document.addEventListener("DOMContentLoaded", function () {
       // Update level and content without moving popup
       currentLevel = levelNumber;
       updateLevelName(levelNumber);
-      openLevelPopup(levelNumber);
+
+      // Update popup content without animation
+      const popup = document.querySelector(".popup");
+      const popupPlan = popup.querySelector(".popup--plan");
+      const popupPlan3d = popup.querySelector(".popup--plan-3d");
+      const levelEl = document.querySelector(
+        `.etage--el:nth-child(${levelNumber})`
+      );
+
+      if (levelEl) {
+        const levelImage = levelEl.querySelector(".etage--img");
+        const appartItems = levelEl.querySelectorAll(".appart-item");
+
+        // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
+        popupPlan.innerHTML = "";
+        if (levelImage) {
+          const clonedImage = levelImage.cloneNode(true);
+          popupPlan.appendChild(clonedImage);
+        }
+
+        appartItems.forEach((item, index) => {
+          const plan = item.querySelector(".appart-plan");
+          if (plan) {
+            const clonedPlan = plan.cloneNode(true);
+            popupPlan.appendChild(clonedPlan);
+          }
+        });
+
+        // Update .popup--plan with .etage--img src
+        if (levelImage) {
+          const popupPlanImg = popupPlan.querySelector("img");
+          if (popupPlanImg) {
+            const levelImgSrc = levelImage.getAttribute("src");
+            const levelImgSrcset = levelImage.getAttribute("srcset");
+            popupPlanImg.setAttribute("src", levelImgSrc);
+            if (levelImgSrcset) {
+              popupPlanImg.setAttribute("srcset", levelImgSrcset);
+            }
+          }
+        }
+
+        // Find the apartment with the smallest .appart-number
+        let minAppart = null;
+        let minNumber = Infinity;
+
+        appartItems.forEach((item) => {
+          const numberEl = item.querySelector(".appart-number");
+          const number = parseInt(numberEl?.innerText || "9999", 10);
+          if (!isNaN(number) && number < minNumber) {
+            minNumber = number;
+            minAppart = item;
+          }
+        });
+
+        // If found, fill the apartment data
+        if (minAppart) {
+          fillApartmentData(minAppart, levelImage);
+        }
+
+        // Add click handlers to plan paths
+        const planPaths = popupPlan.querySelectorAll("path");
+        planPaths.forEach((path) => {
+          path.addEventListener("click", () => {
+            const clickedIndex = Array.from(planPaths).indexOf(path);
+            const clickedAppart = appartItems[clickedIndex];
+            if (clickedAppart) {
+              fillApartmentData(clickedAppart, levelImage);
+            }
+          });
+        });
+      }
     }
   }
 
