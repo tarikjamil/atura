@@ -263,10 +263,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const popup3dEl = document.querySelector('[data="plan3d"]');
         console.log("Popup 3D element found:", popup3dEl);
         if (popup3dEl) {
+          const currentSrc = popup3dEl.getAttribute("src");
+          const currentSrcset = popup3dEl.getAttribute("srcset");
+          console.log("Current popup 3D src:", currentSrc);
+          console.log("Current popup 3D srcset:", currentSrcset);
+          console.log("Will update to src:", imgSrc);
+          console.log("Will update to srcset:", imgSrcset);
+
           popup3dEl.setAttribute("src", imgSrc);
           if (imgSrcset) {
             popup3dEl.setAttribute("srcset", imgSrcset);
           }
+
+          // Force image reload
+          popup3dEl.style.display = "none";
+          popup3dEl.offsetHeight; // Trigger reflow
+          popup3dEl.style.display = "";
+
           console.log("Updated popup 3D image src and srcset");
         } else {
           console.error('Element [data="plan3d"] not found');
