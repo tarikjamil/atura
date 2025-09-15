@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (levelImage) {
       const popupPlanImg = popupPlan.querySelector("img");
       if (popupPlanImg) {
-        const levelImgSrc = getImageSrc(levelImage);
+        const levelImgSrc = levelImage.getAttribute("src");
         const levelImgSrcset = levelImage.getAttribute("srcset");
         console.log("Updating .popup--plan img src to:", levelImgSrc);
         popupPlanImg.setAttribute("src", levelImgSrc);
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Update .popup--plan-3d with .appart-plan3d src
     const appartPlan3d = appartEl.querySelector(".appart-plan3d");
     if (appartPlan3d) {
-      const plan3dSrc = getImageSrc(appartPlan3d);
+      const plan3dSrc = appartPlan3d.getAttribute("src");
       const plan3dSrcset = appartPlan3d.getAttribute("srcset");
       console.log("Apartment plan3d source:", plan3dSrc);
       console.log("Apartment plan3d srcset:", plan3dSrcset);
