@@ -137,14 +137,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
     popupPlan.innerHTML = "";
+    console.log("Cleared popup plan content");
     if (levelImage) {
-      popupPlan.appendChild(levelImage.cloneNode(true));
+      const clonedImage = levelImage.cloneNode(true);
+      popupPlan.appendChild(clonedImage);
+      console.log("Added level image to popup plan:", clonedImage);
     }
 
-    appartItems.forEach((item) => {
+    appartItems.forEach((item, index) => {
       const plan = item.querySelector(".appart-plan");
       if (plan) {
-        popupPlan.appendChild(plan.cloneNode(true));
+        const clonedPlan = plan.cloneNode(true);
+        popupPlan.appendChild(clonedPlan);
+        console.log(`Added apartment plan ${index + 1} to popup:`, clonedPlan);
       }
     });
 
@@ -175,13 +180,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // STEP 3: Click handler on .appart-plan paths to change apartment info
     const planPaths = popupPlan.querySelectorAll("path");
     console.log("Plan paths found:", planPaths.length);
-    planPaths.forEach((path) => {
+    console.log("Plan paths elements:", planPaths);
+    planPaths.forEach((path, index) => {
+      console.log(`Plan path ${index}:`, path);
       path.addEventListener("click", () => {
-        const index = Array.from(planPaths).indexOf(path);
-        const clickedAppart = appartItems[index];
+        const clickedIndex = Array.from(planPaths).indexOf(path);
+        const clickedAppart = appartItems[clickedIndex];
         console.log(
           "Plan path clicked, index:",
-          index,
+          clickedIndex,
           "apartment:",
           clickedAppart
         );
