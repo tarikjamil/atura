@@ -213,11 +213,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Debug each element before setting innerText
-    const numberEl = document.querySelector("[data-number]");
-    const piecesEl = document.querySelector("[data-pieces]");
-    const surfaceEl = document.querySelector("[data-surface]");
-    const balconEl = document.querySelector("[data-balcon]");
-    const disponibiliteEl = document.querySelector("[data-disponibilite]");
+    const numberEl = document.querySelector('[data="number"]');
+    const piecesEl = document.querySelector('[data="pieces"]');
+    const surfaceEl = document.querySelector('[data="surface"]');
+    const balconEl = document.querySelector('[data="balcon"]');
+    const disponibiliteEl = document.querySelector('[data="disponibilite"]');
 
     console.log("Target elements found:", {
       numberEl,
