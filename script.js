@@ -260,7 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Level image source:", imgSrc);
       console.log("Level image srcset:", imgSrcset);
       if (imgSrc) {
-        const popup3dEl = document.querySelector(".popup--plan-3d");
+        const popup3dEl = document.querySelector('[data="plan3d"]');
         console.log("Popup 3D element found:", popup3dEl);
         if (popup3dEl) {
           popup3dEl.setAttribute("src", imgSrc);
@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           console.log("Updated popup 3D image src and srcset");
         } else {
-          console.error("Element .popup--plan-3d not found");
+          console.error('Element [data="plan3d"] not found');
         }
       }
     }
