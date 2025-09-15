@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Apartment items found:", appartItems.length);
 
     // Show popup
-    popup.style.display = "flex";
+    popup.style.display = "grid";
     console.log("Popup displayed");
 
     // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
