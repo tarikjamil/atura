@@ -101,12 +101,29 @@ document.addEventListener("DOMContentLoaded", function () {
     path.setAttribute("level", index + 1);
   });
 
-  // STEP 2: Listen to click on any level
+  // STEP 2: Listen to click and hover on any level
   levelPaths.forEach((path) => {
     path.addEventListener("click", () => {
       const selectedLevel = path.getAttribute("level");
       console.log("Level clicked:", selectedLevel);
       openLevelPopup(selectedLevel);
+    });
+
+    // Add hover functionality
+    path.addEventListener("mouseenter", () => {
+      const hoveredLevel = path.getAttribute("level");
+      console.log("Level hovered:", hoveredLevel);
+      updateLevelNumber(hoveredLevel);
+    });
+
+    path.addEventListener("mouseleave", () => {
+      // Reset to current level when not hovering
+      if (currentLevel) {
+        updateLevelNumber(currentLevel);
+      } else {
+        // Clear the level number if no popup is open
+        updateLevelNumber("");
+      }
     });
   });
 
@@ -345,6 +362,17 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Updated level name to:", levelNumber);
     } else {
       console.error('Element [level="name"] not found');
+    }
+  }
+
+  // Update level number display (for hover)
+  function updateLevelNumber(levelNumber) {
+    const levelNumberEl = document.querySelector('[level="number"]');
+    if (levelNumberEl) {
+      levelNumberEl.innerText = levelNumber;
+      console.log("Updated level number to:", levelNumber);
+    } else {
+      console.error('Element [level="number"] not found');
     }
   }
 
