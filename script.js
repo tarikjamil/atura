@@ -109,14 +109,29 @@ document.addEventListener("DOMContentLoaded", function () {
       openLevelPopup(selectedLevel);
     });
 
-    // Add hover functionality
+    // Add hover functionality with animations
     path.addEventListener("mouseenter", () => {
       const hoveredLevel = path.getAttribute("level");
       console.log("Level hovered:", hoveredLevel);
+
+      // Animate path on hover
+      gsap.to(path, {
+        scale: 1.05,
+        duration: 0.2,
+        ease: "power2.out",
+      });
+
       updateLevelNumber(hoveredLevel);
     });
 
     path.addEventListener("mouseleave", () => {
+      // Reset path scale
+      gsap.to(path, {
+        scale: 1,
+        duration: 0.2,
+        ease: "power2.out",
+      });
+
       // Reset to current level when not hovering
       if (currentLevel) {
         updateLevelNumber(currentLevel);
@@ -151,9 +166,46 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Level image found:", levelImage);
     console.log("Apartment items found:", appartItems.length);
 
-    // Show popup
+    // Show popup with GSAP animation
     popup.style.display = "grid";
-    console.log("Popup displayed");
+
+    // Animate popup entrance
+    gsap.fromTo(
+      popup,
+      {
+        opacity: 0,
+        scale: 0.8,
+        y: 50,
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.4,
+        ease: "back.out(1.7)",
+      }
+    );
+
+    // Animate popup content
+    gsap.fromTo(
+      popup.querySelectorAll(
+        ".popup--plan, .popup--plan-3d, [level='name'], [level='number']"
+      ),
+      {
+        opacity: 0,
+        y: 20,
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.3,
+        delay: 0.2,
+        stagger: 0.1,
+        ease: "power2.out",
+      }
+    );
+
+    console.log("Popup displayed with animation");
 
     // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
     popupPlan.innerHTML = "";
@@ -365,11 +417,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Update level number display (for hover)
+  // Update level number display (for hover) with animation
   function updateLevelNumber(levelNumber) {
     const levelNumberEl = document.querySelector('[level="number"]');
     if (levelNumberEl) {
-      levelNumberEl.innerText = levelNumber;
+      // Animate the number change
+      gsap.to(levelNumberEl, {
+        scale: 1.1,
+        duration: 0.1,
+        ease: "power2.out",
+        onComplete: () => {
+          levelNumberEl.innerText = levelNumber;
+          gsap.to(levelNumberEl, {
+            scale: 1,
+            duration: 0.1,
+            ease: "power2.out",
+          });
+        },
+      });
       console.log("Updated level number to:", levelNumber);
     } else {
       console.error('Element [level="number"] not found');
@@ -410,31 +475,88 @@ document.addEventListener("DOMContentLoaded", function () {
     return prevLevel;
   }
 
-  // Navigate to specific level
+  // Navigate to specific level with animation
   function navigateToLevel(levelNumber) {
     if (levelNumber && levelNumber !== currentLevel) {
       console.log("Navigating to level:", levelNumber);
-      currentLevel = levelNumber;
-      updateLevelName(levelNumber);
-      openLevelPopup(levelNumber);
+
+      const popup = document.querySelector(".popup");
+      const popupContent = popup.querySelectorAll(
+        ".popup--plan, .popup--plan-3d, [level='name'], [level='number']"
+      );
+
+      // Animate content out
+      gsap.to(popupContent, {
+        opacity: 0,
+        y: -20,
+        duration: 0.2,
+        ease: "power2.in",
+        onComplete: () => {
+          // Update level and content
+          currentLevel = levelNumber;
+          updateLevelName(levelNumber);
+          openLevelPopup(levelNumber);
+
+          // Animate content back in
+          gsap.fromTo(
+            popupContent,
+            {
+              opacity: 0,
+              y: 20,
+            },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.3,
+              stagger: 0.05,
+              ease: "power2.out",
+            }
+          );
+        },
+      });
     }
   }
 
-  // Close popup
+  // Close popup with GSAP animation
   function closePopup() {
     const popup = document.querySelector(".popup");
     if (popup) {
-      popup.style.display = "none";
-      currentLevel = null;
-      console.log("Popup closed");
+      // Animate popup exit
+      gsap.to(popup, {
+        opacity: 0,
+        scale: 0.8,
+        y: 50,
+        duration: 0.3,
+        ease: "back.in(1.7)",
+        onComplete: () => {
+          popup.style.display = "none";
+          currentLevel = null;
+          console.log("Popup closed with animation");
+        },
+      });
     }
   }
 
-  // Add event listeners for navigation and closing
+  // Add event listeners for navigation and closing with animations
   document.addEventListener("click", function (e) {
     // Up arrow - next level
     if (e.target.closest(".arrow--flex.is--up")) {
       e.preventDefault();
+
+      // Animate arrow click
+      gsap.to(e.target.closest(".arrow--flex.is--up"), {
+        scale: 0.9,
+        duration: 0.1,
+        ease: "power2.out",
+        onComplete: () => {
+          gsap.to(e.target.closest(".arrow--flex.is--up"), {
+            scale: 1,
+            duration: 0.1,
+            ease: "power2.out",
+          });
+        },
+      });
+
       if (currentLevel) {
         const nextLevel = getNextLevelUp(currentLevel);
         if (nextLevel) {
@@ -448,6 +570,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // Down arrow - previous level
     if (e.target.closest(".arrow--flex.is--down")) {
       e.preventDefault();
+
+      // Animate arrow click
+      gsap.to(e.target.closest(".arrow--flex.is--down"), {
+        scale: 0.9,
+        duration: 0.1,
+        ease: "power2.out",
+        onComplete: () => {
+          gsap.to(e.target.closest(".arrow--flex.is--down"), {
+            scale: 1,
+            duration: 0.1,
+            ease: "power2.out",
+          });
+        },
+      });
+
       if (currentLevel) {
         const prevLevel = getPreviousLevelDown(currentLevel);
         if (prevLevel) {
@@ -461,6 +598,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // Close popup
     if (e.target.closest(".popup--close-trigger")) {
       e.preventDefault();
+
+      // Animate close button click
+      gsap.to(e.target.closest(".popup--close-trigger"), {
+        scale: 0.9,
+        duration: 0.1,
+        ease: "power2.out",
+        onComplete: () => {
+          gsap.to(e.target.closest(".popup--close-trigger"), {
+            scale: 1,
+            duration: 0.1,
+            ease: "power2.out",
+          });
+        },
+      });
+
       closePopup();
     }
   });
