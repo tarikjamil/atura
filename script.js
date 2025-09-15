@@ -339,12 +339,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Update level name display
   function updateLevelName(levelNumber) {
-    const levelNameEl = document.querySelector('[data="name"]');
+    const levelNameEl = document.querySelector('[level="name"]');
     if (levelNameEl) {
       levelNameEl.innerText = levelNumber;
       console.log("Updated level name to:", levelNumber);
     } else {
-      console.error('Element [data="name"] not found');
+      console.error('Element [level="name"] not found');
     }
   }
 
