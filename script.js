@@ -228,29 +228,29 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     if (numberEl) numberEl.innerText = apartmentNumber;
-    else console.error("Element [data-number] not found");
+    else console.error('Element [data="number"] not found');
 
     if (piecesEl) piecesEl.innerText = apartmentPieces;
-    else console.error("Element [data-pieces] not found");
+    else console.error('Element [data="pieces"] not found');
 
     if (surfaceEl) surfaceEl.innerText = apartmentSurface;
-    else console.error("Element [data-surface] not found");
+    else console.error('Element [data="surface"] not found');
 
     if (balconEl) balconEl.innerText = apartmentBalcon;
-    else console.error("Element [data-balcon] not found");
+    else console.error('Element [data="balcon"] not found');
 
     if (disponibiliteEl) disponibiliteEl.innerText = apartmentDisponibilite;
-    else console.error("Element [data-disponibilite] not found");
+    else console.error('Element [data="disponibilite"] not found');
 
     const visite360 = getText(".appart-visite360");
     console.log("Visite 360 link:", visite360);
     if (visite360) {
-      const visite360El = document.querySelector("[data-visite360]");
+      const visite360El = document.querySelector('[data="visite360"]');
       console.log("Visite 360 element found:", visite360El);
       if (visite360El) {
         visite360El.setAttribute("href", visite360);
       } else {
-        console.error("Element [data-visite360] not found");
+        console.error('Element [data="visite360"] not found');
       }
     }
 
