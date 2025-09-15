@@ -156,14 +156,31 @@ document.addEventListener("DOMContentLoaded", function () {
     // Update .popup--plan with .etage--img src
     if (levelImage) {
       const popupPlanImg = popupPlan.querySelector("img");
+      console.log("Popup plan img found:", popupPlanImg);
       if (popupPlanImg) {
         const levelImgSrc = levelImage.getAttribute("src");
         const levelImgSrcset = levelImage.getAttribute("srcset");
-        console.log("Updating .popup--plan img src to:", levelImgSrc);
+        const currentSrc = popupPlanImg.getAttribute("src");
+        const currentSrcset = popupPlanImg.getAttribute("srcset");
+
+        console.log("Current popup plan img src:", currentSrc);
+        console.log("Current popup plan img srcset:", currentSrcset);
+        console.log("Will update popup plan img src to:", levelImgSrc);
+        console.log("Will update popup plan img srcset to:", levelImgSrcset);
+
         popupPlanImg.setAttribute("src", levelImgSrc);
         if (levelImgSrcset) {
           popupPlanImg.setAttribute("srcset", levelImgSrcset);
         }
+
+        // Force image reload
+        popupPlanImg.style.display = "none";
+        popupPlanImg.offsetHeight; // Trigger reflow
+        popupPlanImg.style.display = "";
+
+        console.log("Updated .popup--plan img src and srcset");
+      } else {
+        console.error("No img found in .popup--plan");
       }
     }
 
