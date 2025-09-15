@@ -93,170 +93,109 @@ $(document).on("click", ".navlink, .background--menu", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-  // ---------------------- ÉTAPE 0 : Ouvrir la popup d'étage ---------------------- //
-  const svgPaths = document.querySelectorAll(".img--bg.is--svg [etage]");
+  // STEP 1: Number each level path inside the SVG
+  const levelPaths = document.querySelectorAll(".img--bg.is--svg path");
+  levelPaths.forEach((path, index) => {
+    path.setAttribute("level", index + 1);
+  });
 
-  svgPaths.forEach((path) => {
+  // STEP 2: Listen to click on any level
+  levelPaths.forEach((path) => {
     path.addEventListener("click", () => {
-      const etage = path.getAttribute("etage");
-      console.log("📂 Étape sélectionnée :", etage);
-
-      // Masquer toutes les popups
-      document.querySelectorAll(".popup[data-etage]").forEach((p) => {
-        p.style.display = "none";
-      });
-
-      // Afficher celle correspondant à l’étage cliqué
-      const popupToShow = document.querySelector(
-        `.popup[data-etage="${etage}"]`
-      );
-      if (popupToShow) {
-        popupToShow.style.display = "grid";
-        console.log("✅ Popup affichée pour étage :", etage);
-      } else {
-        console.warn("❌ Popup introuvable pour étage :", etage);
-      }
+      const selectedLevel = path.getAttribute("level");
+      openLevelPopup(selectedLevel);
     });
   });
 
-  // ---------------------- ÉTAPE 1 : Cloner les .appart-plan dans .is--appart-plan ---------------------- //
-  setTimeout(() => {
-    const appartPlans = document.querySelectorAll(".appart-plan");
+  function openLevelPopup(levelNumber) {
+    const popup = document.querySelector(".popup");
+    const popupPlan = popup.querySelector(".popup--plan");
+    const popupPlan3d = popup.querySelector(".popup--plan-3d");
+    const levelEl = document.querySelector(
+      `.etage--el:nth-child(${levelNumber})`
+    );
 
-    appartPlans.forEach((plan) => {
-      const wrapper = plan.closest(".w-dyn-item");
-      if (!wrapper) return;
+    if (!levelEl) return;
 
-      const appId = wrapper
-        .querySelector(".appart-number")
-        ?.textContent?.trim();
-      const etage = wrapper.querySelector(".appart-etage")?.textContent?.trim();
+    const levelImage = levelEl.querySelector(".etage--img");
+    const appartItems = levelEl.querySelectorAll(".appart-item");
 
-      if (!appId || !etage) return;
+    // Show popup
+    popup.style.display = "flex";
 
-      const target = document.querySelector(
-        `.relative.is--appart-plan[data-etage="${etage}"]`
-      );
-      if (!target) {
-        console.warn(
-          `❌ Container .relative.is--appart-plan[data-etage="${etage}"] introuvable`
-        );
-        return;
+    // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
+    popupPlan.innerHTML = "";
+    if (levelImage) {
+      popupPlan.appendChild(levelImage.cloneNode(true));
+    }
+
+    appartItems.forEach((item) => {
+      const plan = item.querySelector(".appart-plan");
+      if (plan) {
+        popupPlan.appendChild(plan.cloneNode(true));
       }
-
-      const clone = plan.cloneNode(true);
-      clone.setAttribute("data-etage-app-plan", appId);
-
-      // Injecter le data-app-id sur chaque path
-      const paths = clone.querySelectorAll("path");
-      paths.forEach((path) => {
-        path.setAttribute("data-app-id", appId);
-      });
-
-      target.appendChild(clone);
-      console.log(
-        `✅ Injecté appart-plan ${appId} dans étage ${etage} avec ${paths.length} path(s)`
-      );
     });
-  }, 100); // Petit délai pour s'assurer que Webflow a monté tous les éléments
 
-  // ---------------------- ÉTAPE 2 : Clic sur un path → mettre à jour les données ---------------------- //
-  document.body.addEventListener("click", function (e) {
-    let clicked = e.target;
+    // Find the apartment with the smallest .appart-number
+    let minAppart = null;
+    let minNumber = Infinity;
 
-    // Debug : afficher l'élément cliqué
-    console.log("🖱️ Click event on:", clicked);
+    appartItems.forEach((item) => {
+      const numberEl = item.querySelector(".appart-number");
+      const number = parseInt(numberEl?.innerText || "9999", 10);
+      if (!isNaN(number) && number < minNumber) {
+        minNumber = number;
+        minAppart = item;
+      }
+    });
 
-    // Remonter jusqu’à trouver le data-app-id
-    while (clicked && !clicked.hasAttribute("data-app-id")) {
-      clicked = clicked.parentElement;
+    // If found, fill the apartment details
+    if (minAppart) {
+      fillApartmentData(minAppart, levelImage);
     }
 
-    if (!clicked) {
-      console.warn("❌ Aucun data-app-id détecté sur le clic");
-      return;
+    // STEP 3: Click handler on .appart-plan paths to change apartment info
+    const planPaths = popupPlan.querySelectorAll("path");
+    planPaths.forEach((path) => {
+      path.addEventListener("click", () => {
+        const index = Array.from(planPaths).indexOf(path);
+        const clickedAppart = appartItems[index];
+        if (clickedAppart) {
+          fillApartmentData(clickedAppart, levelImage);
+        }
+      });
+    });
+  }
+
+  function fillApartmentData(appartEl, levelImage) {
+    const getText = (selector) =>
+      appartEl.querySelector(selector)?.innerText || "";
+    const getImageSrc = (el) => el?.getAttribute("src") || "";
+
+    document.querySelector("[data-number]").innerText =
+      getText(".appart-number");
+    document.querySelector("[data-pieces]").innerText =
+      getText(".appart-pieces");
+    document.querySelector("[data-surface]").innerText =
+      getText(".appart-surface");
+    document.querySelector("[data-balcon]").innerText =
+      getText(".appart-balcon");
+    document.querySelector("[data-disponibilite]").innerText = getText(
+      ".appart-disponibilite"
+    );
+
+    const visite360 = getText(".appart-visite360");
+    if (visite360) {
+      document
+        .querySelector("[data-visite360]")
+        ?.setAttribute("href", visite360);
     }
 
-    const appId = clicked.getAttribute("data-app-id");
-    if (!appId) return;
-    console.log("✅ Appartement sélectionné :", appId);
-
-    const appartItem = document
-      .querySelector(`.w-dyn-item .appart-number[data-app-id="${appId}"]`)
-      ?.closest(".w-dyn-item");
-    if (!appartItem) {
-      console.warn(`❌ Aucun .w-dyn-item trouvé pour appId ${appId}`);
-      return;
-    }
-
-    // Fonction de remplissage
-    const setData = (dataAttr, value) => {
-      const el = document.querySelector(`[data="${dataAttr}"]`);
-      if (el) {
-        el.textContent = value;
-        console.log(`↪️ data="${dataAttr}" mis à jour :`, value);
-      } else {
-        console.warn(`⚠️ Élément [data="${dataAttr}"] non trouvé`);
-      }
-    };
-
-    // Mettre à jour les données texte
-    setData(
-      "number",
-      appartItem.querySelector(".appart-number")?.textContent?.trim() || ""
-    );
-    setData(
-      "pieces",
-      appartItem.querySelector(".appart-pieces")?.textContent?.trim() || ""
-    );
-    setData(
-      "disponibilite",
-      appartItem.querySelector(".appart-disponibilite")?.textContent?.trim() ||
-        ""
-    );
-    setData(
-      "surface",
-      appartItem.querySelector(".appart-surface")?.textContent?.trim() || ""
-    );
-    setData(
-      "balcon",
-      appartItem.querySelector(".appart-balcon")?.textContent?.trim() || ""
-    );
-
-    // -------- PLAN 3D (image responsive) -------- //
-    const plan3dImage = appartItem.querySelector(".appart-plan3d");
-    const plan3dTarget = document.querySelector('[data="plan3d"]');
-
-    if (plan3dImage && plan3dTarget) {
-      const src = plan3dImage.getAttribute("src");
-      const srcset = plan3dImage.getAttribute("srcset");
-      const sizes = plan3dImage.getAttribute("sizes");
-
-      if (src) {
-        plan3dTarget.setAttribute("src", src);
-        console.log("🖼️ Image src:", src);
-      }
-      if (srcset) {
-        plan3dTarget.setAttribute("srcset", srcset);
-        console.log("🖼️ Image srcset:", srcset);
-      }
-      if (sizes) {
-        plan3dTarget.setAttribute("sizes", sizes);
-        console.log("🖼️ Image sizes:", sizes);
+    if (levelImage) {
+      const imgSrc = getImageSrc(levelImage);
+      if (imgSrc) {
+        document.querySelector(".popup--plan-3d")?.setAttribute("src", imgSrc);
       }
     }
-
-    // -------- VISITE 360° (lien) -------- //
-    const visiteLink = appartItem
-      .querySelector(".appart-visite360")
-      ?.getAttribute("href");
-    const visiteTarget = document.querySelector('a[data="visite360"]');
-
-    if (visiteTarget && visiteLink) {
-      visiteTarget.setAttribute("href", visiteLink);
-      console.log("🔗 Lien visite360 mis à jour :", visiteLink);
-    } else {
-      console.warn("⚠️ Lien visite360 introuvable ou href vide");
-    }
-  });
+  }
 });
