@@ -99,48 +99,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const levelPaths = document.querySelectorAll(".img--bg.is--svg path");
   levelPaths.forEach((path, index) => {
     path.setAttribute("level", index + 1);
-    // Set initial opacity
-    gsap.set(path, { opacity: 1 });
   });
 
-  // STEP 2: Listen to click and hover on any level
+  // STEP 2: Listen to click on any level
   levelPaths.forEach((path) => {
     path.addEventListener("click", () => {
       const selectedLevel = path.getAttribute("level");
       console.log("Level clicked:", selectedLevel);
       openLevelPopup(selectedLevel);
-    });
-
-    // Add hover functionality with fade animation
-    path.addEventListener("mouseenter", () => {
-      const hoveredLevel = path.getAttribute("level");
-      console.log("Level hovered:", hoveredLevel);
-
-      // Fade path on hover
-      gsap.to(path, {
-        opacity: 0.7,
-        duration: 0.2,
-        ease: "power2.out",
-      });
-
-      updateLevelNumber(hoveredLevel);
-    });
-
-    path.addEventListener("mouseleave", () => {
-      // Reset path opacity
-      gsap.to(path, {
-        opacity: 1,
-        duration: 0.2,
-        ease: "power2.out",
-      });
-
-      // Reset to current level when not hovering
-      if (currentLevel) {
-        updateLevelNumber(currentLevel);
-      } else {
-        // Clear the level number if no popup is open
-        updateLevelNumber("");
-      }
     });
   });
 
