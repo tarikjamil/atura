@@ -112,6 +112,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function openLevelPopup(levelNumber) {
     console.log("Opening level popup for level:", levelNumber);
+    currentLevel = levelNumber;
+    updateLevelName(levelNumber);
+
     const popup = document.querySelector(".popup");
     const popupPlan = popup.querySelector(".popup--plan");
     const popupPlan3d = popup.querySelector(".popup--plan-3d");
@@ -330,4 +333,107 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("No .appart-plan3d found in apartment element");
     }
   }
+
+  // Level navigation and popup closing functionality
+  let currentLevel = null;
+
+  // Update level name display
+  function updateLevelName(levelNumber) {
+    const levelNameEl = document.querySelector('[data="name"]');
+    if (levelNameEl) {
+      levelNameEl.innerText = levelNumber;
+      console.log("Updated level name to:", levelNumber);
+    } else {
+      console.error('Element [data="name"] not found');
+    }
+  }
+
+  // Find next available level (up)
+  function getNextLevelUp(currentLevelNum) {
+    const allLevels = document.querySelectorAll(".etage--el");
+    let nextLevel = null;
+
+    for (let i = 0; i < allLevels.length; i++) {
+      const levelNum = i + 1;
+      if (levelNum > currentLevelNum) {
+        nextLevel = levelNum;
+        break;
+      }
+    }
+
+    console.log("Next level up from", currentLevelNum, "is:", nextLevel);
+    return nextLevel;
+  }
+
+  // Find previous available level (down)
+  function getPreviousLevelDown(currentLevelNum) {
+    const allLevels = document.querySelectorAll(".etage--el");
+    let prevLevel = null;
+
+    for (let i = allLevels.length - 1; i >= 0; i--) {
+      const levelNum = i + 1;
+      if (levelNum < currentLevelNum) {
+        prevLevel = levelNum;
+        break;
+      }
+    }
+
+    console.log("Previous level down from", currentLevelNum, "is:", prevLevel);
+    return prevLevel;
+  }
+
+  // Navigate to specific level
+  function navigateToLevel(levelNumber) {
+    if (levelNumber && levelNumber !== currentLevel) {
+      console.log("Navigating to level:", levelNumber);
+      currentLevel = levelNumber;
+      updateLevelName(levelNumber);
+      openLevelPopup(levelNumber);
+    }
+  }
+
+  // Close popup
+  function closePopup() {
+    const popup = document.querySelector(".popup");
+    if (popup) {
+      popup.style.display = "none";
+      currentLevel = null;
+      console.log("Popup closed");
+    }
+  }
+
+  // Add event listeners for navigation and closing
+  document.addEventListener("click", function (e) {
+    // Up arrow - next level
+    if (e.target.closest(".arrow--flex.is--up")) {
+      e.preventDefault();
+      if (currentLevel) {
+        const nextLevel = getNextLevelUp(currentLevel);
+        if (nextLevel) {
+          navigateToLevel(nextLevel);
+        } else {
+          console.log("No higher level available");
+        }
+      }
+    }
+
+    // Down arrow - previous level
+    if (e.target.closest(".arrow--flex.is--down")) {
+      e.preventDefault();
+      if (currentLevel) {
+        const prevLevel = getPreviousLevelDown(currentLevel);
+        if (prevLevel) {
+          navigateToLevel(prevLevel);
+        } else {
+          console.log("No lower level available");
+        }
+      }
+    }
+
+    // Close popup
+    if (e.target.closest(".popup--close-trigger")) {
+      e.preventDefault();
+      closePopup();
+    }
+  });
 });
