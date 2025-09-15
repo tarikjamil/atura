@@ -153,6 +153,20 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+    // Update .popup--plan with .etage--img src
+    if (levelImage) {
+      const popupPlanImg = popupPlan.querySelector("img");
+      if (popupPlanImg) {
+        const levelImgSrc = getImageSrc(levelImage);
+        const levelImgSrcset = levelImage.getAttribute("srcset");
+        console.log("Updating .popup--plan img src to:", levelImgSrc);
+        popupPlanImg.setAttribute("src", levelImgSrc);
+        if (levelImgSrcset) {
+          popupPlanImg.setAttribute("srcset", levelImgSrcset);
+        }
+      }
+    }
+
     // Find the apartment with the smallest .appart-number
     let minAppart = null;
     let minNumber = Infinity;
@@ -261,12 +275,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    if (levelImage) {
-      const imgSrc = getImageSrc(levelImage);
-      const imgSrcset = levelImage.getAttribute("srcset");
-      console.log("Level image source:", imgSrc);
-      console.log("Level image srcset:", imgSrcset);
-      if (imgSrc) {
+    // Update .popup--plan-3d with .appart-plan3d src
+    const appartPlan3d = appartEl.querySelector(".appart-plan3d");
+    if (appartPlan3d) {
+      const plan3dSrc = getImageSrc(appartPlan3d);
+      const plan3dSrcset = appartPlan3d.getAttribute("srcset");
+      console.log("Apartment plan3d source:", plan3dSrc);
+      console.log("Apartment plan3d srcset:", plan3dSrcset);
+
+      if (plan3dSrc) {
         const popup3dEl = document.querySelector('[data="plan3d"]');
         console.log("Popup 3D element found:", popup3dEl);
         if (popup3dEl) {
@@ -274,12 +291,12 @@ document.addEventListener("DOMContentLoaded", function () {
           const currentSrcset = popup3dEl.getAttribute("srcset");
           console.log("Current popup 3D src:", currentSrc);
           console.log("Current popup 3D srcset:", currentSrcset);
-          console.log("Will update to src:", imgSrc);
-          console.log("Will update to srcset:", imgSrcset);
+          console.log("Will update to src:", plan3dSrc);
+          console.log("Will update to srcset:", plan3dSrcset);
 
-          popup3dEl.setAttribute("src", imgSrc);
-          if (imgSrcset) {
-            popup3dEl.setAttribute("srcset", imgSrcset);
+          popup3dEl.setAttribute("src", plan3dSrc);
+          if (plan3dSrcset) {
+            popup3dEl.setAttribute("srcset", plan3dSrcset);
           }
 
           // Force image reload
@@ -292,6 +309,8 @@ document.addEventListener("DOMContentLoaded", function () {
           console.error('Element [data="plan3d"] not found');
         }
       }
+    } else {
+      console.log("No .appart-plan3d found in apartment element");
     }
   }
 });
