@@ -381,7 +381,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Update level number display (for hover) with animation
   function updateLevelNumber(levelNumber) {
-    const levelNumberEl = document.querySelector('[level="number"]');
+    const levelNumberEl = document.querySelector('[data="levelnumber"]');
     if (levelNumberEl) {
       // Animate the number change
       gsap.to(levelNumberEl, {
@@ -399,7 +399,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       console.log("Updated level number to:", levelNumber);
     } else {
-      console.error('Element [level="number"] not found');
+      console.error('Element [data="levelnumber"] not found');
     }
   }
 
