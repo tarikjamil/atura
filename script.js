@@ -212,26 +212,59 @@ document.addEventListener("DOMContentLoaded", function () {
       disponibilite: apartmentDisponibilite,
     });
 
-    document.querySelector("[data-number]").innerText = apartmentNumber;
-    document.querySelector("[data-pieces]").innerText = apartmentPieces;
-    document.querySelector("[data-surface]").innerText = apartmentSurface;
-    document.querySelector("[data-balcon]").innerText = apartmentBalcon;
-    document.querySelector("[data-disponibilite]").innerText =
-      apartmentDisponibilite;
+    // Debug each element before setting innerText
+    const numberEl = document.querySelector("[data-number]");
+    const piecesEl = document.querySelector("[data-pieces]");
+    const surfaceEl = document.querySelector("[data-surface]");
+    const balconEl = document.querySelector("[data-balcon]");
+    const disponibiliteEl = document.querySelector("[data-disponibilite]");
+
+    console.log("Target elements found:", {
+      numberEl,
+      piecesEl,
+      surfaceEl,
+      balconEl,
+      disponibiliteEl,
+    });
+
+    if (numberEl) numberEl.innerText = apartmentNumber;
+    else console.error("Element [data-number] not found");
+
+    if (piecesEl) piecesEl.innerText = apartmentPieces;
+    else console.error("Element [data-pieces] not found");
+
+    if (surfaceEl) surfaceEl.innerText = apartmentSurface;
+    else console.error("Element [data-surface] not found");
+
+    if (balconEl) balconEl.innerText = apartmentBalcon;
+    else console.error("Element [data-balcon] not found");
+
+    if (disponibiliteEl) disponibiliteEl.innerText = apartmentDisponibilite;
+    else console.error("Element [data-disponibilite] not found");
 
     const visite360 = getText(".appart-visite360");
     console.log("Visite 360 link:", visite360);
     if (visite360) {
-      document
-        .querySelector("[data-visite360]")
-        ?.setAttribute("href", visite360);
+      const visite360El = document.querySelector("[data-visite360]");
+      console.log("Visite 360 element found:", visite360El);
+      if (visite360El) {
+        visite360El.setAttribute("href", visite360);
+      } else {
+        console.error("Element [data-visite360] not found");
+      }
     }
 
     if (levelImage) {
       const imgSrc = getImageSrc(levelImage);
       console.log("Level image source:", imgSrc);
       if (imgSrc) {
-        document.querySelector(".popup--plan-3d")?.setAttribute("src", imgSrc);
+        const popup3dEl = document.querySelector(".popup--plan-3d");
+        console.log("Popup 3D element found:", popup3dEl);
+        if (popup3dEl) {
+          popup3dEl.setAttribute("src", imgSrc);
+        } else {
+          console.error("Element .popup--plan-3d not found");
+        }
       }
     }
   }
