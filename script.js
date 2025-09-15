@@ -109,14 +109,14 @@ document.addEventListener("DOMContentLoaded", function () {
       openLevelPopup(selectedLevel);
     });
 
-    // Add hover functionality with animations
+    // Add hover functionality with fade animation
     path.addEventListener("mouseenter", () => {
       const hoveredLevel = path.getAttribute("level");
       console.log("Level hovered:", hoveredLevel);
 
-      // Animate path on hover
+      // Fade path on hover
       gsap.to(path, {
-        scale: 1.05,
+        opacity: 0.7,
         duration: 0.2,
         ease: "power2.out",
       });
@@ -125,9 +125,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     path.addEventListener("mouseleave", () => {
-      // Reset path scale
+      // Reset path opacity
       gsap.to(path, {
-        scale: 1,
+        opacity: 1,
         duration: 0.2,
         ease: "power2.out",
       });
@@ -166,46 +166,23 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Level image found:", levelImage);
     console.log("Apartment items found:", appartItems.length);
 
-    // Show popup with GSAP animation
+    // Show popup with fade animation
     popup.style.display = "grid";
 
-    // Animate popup entrance
+    // Animate popup entrance - just fade in
     gsap.fromTo(
       popup,
       {
         opacity: 0,
-        scale: 0.8,
-        y: 50,
       },
       {
         opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 0.4,
-        ease: "back.out(1.7)",
-      }
-    );
-
-    // Animate popup content
-    gsap.fromTo(
-      popup.querySelectorAll(
-        ".popup--plan, .popup--plan-3d, [level='name'], [level='number']"
-      ),
-      {
-        opacity: 0,
-        y: 20,
-      },
-      {
-        opacity: 1,
-        y: 0,
         duration: 0.3,
-        delay: 0.2,
-        stagger: 0.1,
         ease: "power2.out",
       }
     );
 
-    console.log("Popup displayed with animation");
+    console.log("Popup displayed with fade animation");
 
     // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
     popupPlan.innerHTML = "";
@@ -475,63 +452,31 @@ document.addEventListener("DOMContentLoaded", function () {
     return prevLevel;
   }
 
-  // Navigate to specific level with animation
+  // Navigate to specific level - no popup movement
   function navigateToLevel(levelNumber) {
     if (levelNumber && levelNumber !== currentLevel) {
       console.log("Navigating to level:", levelNumber);
 
-      const popup = document.querySelector(".popup");
-      const popupContent = popup.querySelectorAll(
-        ".popup--plan, .popup--plan-3d, [level='name'], [level='number']"
-      );
-
-      // Animate content out
-      gsap.to(popupContent, {
-        opacity: 0,
-        y: -20,
-        duration: 0.2,
-        ease: "power2.in",
-        onComplete: () => {
-          // Update level and content
-          currentLevel = levelNumber;
-          updateLevelName(levelNumber);
-          openLevelPopup(levelNumber);
-
-          // Animate content back in
-          gsap.fromTo(
-            popupContent,
-            {
-              opacity: 0,
-              y: 20,
-            },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.3,
-              stagger: 0.05,
-              ease: "power2.out",
-            }
-          );
-        },
-      });
+      // Update level and content without moving popup
+      currentLevel = levelNumber;
+      updateLevelName(levelNumber);
+      openLevelPopup(levelNumber);
     }
   }
 
-  // Close popup with GSAP animation
+  // Close popup with fade animation
   function closePopup() {
     const popup = document.querySelector(".popup");
     if (popup) {
-      // Animate popup exit
+      // Animate popup exit - just fade out
       gsap.to(popup, {
         opacity: 0,
-        scale: 0.8,
-        y: 50,
         duration: 0.3,
-        ease: "back.in(1.7)",
+        ease: "power2.out",
         onComplete: () => {
           popup.style.display = "none";
           currentLevel = null;
-          console.log("Popup closed with animation");
+          console.log("Popup closed with fade animation");
         },
       });
     }
