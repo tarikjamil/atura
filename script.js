@@ -105,11 +105,13 @@ document.addEventListener("DOMContentLoaded", function () {
   levelPaths.forEach((path) => {
     path.addEventListener("click", () => {
       const selectedLevel = path.getAttribute("level");
+      console.log("Level clicked:", selectedLevel);
       openLevelPopup(selectedLevel);
     });
   });
 
   function openLevelPopup(levelNumber) {
+    console.log("Opening level popup for level:", levelNumber);
     const popup = document.querySelector(".popup");
     const popupPlan = popup.querySelector(".popup--plan");
     const popupPlan3d = popup.querySelector(".popup--plan-3d");
@@ -117,13 +119,21 @@ document.addEventListener("DOMContentLoaded", function () {
       `.etage--el:nth-child(${levelNumber})`
     );
 
-    if (!levelEl) return;
+    console.log("Level element found:", levelEl);
+    if (!levelEl) {
+      console.log("No level element found for level:", levelNumber);
+      return;
+    }
 
     const levelImage = levelEl.querySelector(".etage--img");
     const appartItems = levelEl.querySelectorAll(".appart-item");
 
+    console.log("Level image found:", levelImage);
+    console.log("Apartment items found:", appartItems.length);
+
     // Show popup
     popup.style.display = "flex";
+    console.log("Popup displayed");
 
     // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
     popupPlan.innerHTML = "";
@@ -153,15 +163,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // If found, fill the apartment details
     if (minAppart) {
+      console.log(
+        "Filling apartment data for apartment with number:",
+        minNumber
+      );
       fillApartmentData(minAppart, levelImage);
+    } else {
+      console.log("No minimum apartment found");
     }
 
     // STEP 3: Click handler on .appart-plan paths to change apartment info
     const planPaths = popupPlan.querySelectorAll("path");
+    console.log("Plan paths found:", planPaths.length);
     planPaths.forEach((path) => {
       path.addEventListener("click", () => {
         const index = Array.from(planPaths).indexOf(path);
         const clickedAppart = appartItems[index];
+        console.log(
+          "Plan path clicked, index:",
+          index,
+          "apartment:",
+          clickedAppart
+        );
         if (clickedAppart) {
           fillApartmentData(clickedAppart, levelImage);
         }
@@ -170,23 +193,34 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function fillApartmentData(appartEl, levelImage) {
+    console.log("Filling apartment data for element:", appartEl);
     const getText = (selector) =>
       appartEl.querySelector(selector)?.innerText || "";
     const getImageSrc = (el) => el?.getAttribute("src") || "";
 
-    document.querySelector("[data-number]").innerText =
-      getText(".appart-number");
-    document.querySelector("[data-pieces]").innerText =
-      getText(".appart-pieces");
-    document.querySelector("[data-surface]").innerText =
-      getText(".appart-surface");
-    document.querySelector("[data-balcon]").innerText =
-      getText(".appart-balcon");
-    document.querySelector("[data-disponibilite]").innerText = getText(
-      ".appart-disponibilite"
-    );
+    const apartmentNumber = getText(".appart-number");
+    const apartmentPieces = getText(".appart-pieces");
+    const apartmentSurface = getText(".appart-surface");
+    const apartmentBalcon = getText(".appart-balcon");
+    const apartmentDisponibilite = getText(".appart-disponibilite");
+
+    console.log("Apartment data:", {
+      number: apartmentNumber,
+      pieces: apartmentPieces,
+      surface: apartmentSurface,
+      balcon: apartmentBalcon,
+      disponibilite: apartmentDisponibilite,
+    });
+
+    document.querySelector("[data-number]").innerText = apartmentNumber;
+    document.querySelector("[data-pieces]").innerText = apartmentPieces;
+    document.querySelector("[data-surface]").innerText = apartmentSurface;
+    document.querySelector("[data-balcon]").innerText = apartmentBalcon;
+    document.querySelector("[data-disponibilite]").innerText =
+      apartmentDisponibilite;
 
     const visite360 = getText(".appart-visite360");
+    console.log("Visite 360 link:", visite360);
     if (visite360) {
       document
         .querySelector("[data-visite360]")
@@ -195,6 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (levelImage) {
       const imgSrc = getImageSrc(levelImage);
+      console.log("Level image source:", imgSrc);
       if (imgSrc) {
         document.querySelector(".popup--plan-3d")?.setAttribute("src", imgSrc);
       }
