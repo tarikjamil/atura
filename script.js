@@ -92,6 +92,8 @@ $(document).on("click", ".navlink, .background--menu", function () {
   $(".close--btn").click();
 });
 
+// --------------------- levels popup --------------------- //
+
 document.addEventListener("DOMContentLoaded", function () {
   // STEP 1: Number each level path inside the SVG
   const levelPaths = document.querySelectorAll(".img--bg.is--svg path");
