@@ -117,13 +117,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     path.addEventListener("mouseleave", () => {
-      // Reset to current level when not hovering
-      if (currentLevel) {
-        updateLevelNumber(currentLevel);
-      } else {
-        // Clear the level number if no popup is open
-        updateLevelNumber("");
-      }
+      // Keep the last hovered number - don't change anything
+      console.log("Mouse left level path - keeping current number");
     });
   });
 
