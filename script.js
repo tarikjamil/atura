@@ -180,6 +180,17 @@ document.addEventListener("DOMContentLoaded", function () {
         popupPlan.appendChild(clonedPlan);
         console.log(`Added apartment plan ${index + 1} to popup:`, clonedPlan);
       }
+      const planAbsolute = item.querySelector(".appart-plan-absolute");
+      if (planAbsolute) {
+        const clonedPlanAbsolute = planAbsolute.cloneNode(true);
+        // Set initial opacity to 0
+        gsap.set(clonedPlanAbsolute, { opacity: 0 });
+        popupPlan.appendChild(clonedPlanAbsolute);
+        console.log(
+          `Added apartment plan absolute ${index + 1} to popup:`,
+          clonedPlanAbsolute
+        );
+      }
     });
 
     // Update .popup--plan with .etage--img src
@@ -237,12 +248,19 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("No minimum apartment found");
     }
 
-    // STEP 3: Click handler on .appart-plan paths to change apartment info
-    const planPaths = popupPlan.querySelectorAll("path");
+    // STEP 3: Click and hover handlers on .appart-plan paths
+    const planPaths = popupPlan.querySelectorAll(".appart-plan path");
     console.log("Plan paths found:", planPaths.length);
     console.log("Plan paths elements:", planPaths);
+    const planAbsoluteElements = popupPlan.querySelectorAll(
+      ".appart-plan-absolute"
+    );
+
     planPaths.forEach((path, index) => {
       console.log(`Plan path ${index}:`, path);
+      const correspondingPlanAbsolute = planAbsoluteElements[index];
+
+      // Click handler to change apartment info
       path.addEventListener("click", () => {
         const clickedIndex = Array.from(planPaths).indexOf(path);
         const clickedAppart = appartItems[clickedIndex];
@@ -254,6 +272,27 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         if (clickedAppart) {
           fillApartmentData(clickedAppart, levelImage);
+        }
+      });
+
+      // Hover handler to show .appart-plan-absolute with opacity animation
+      path.addEventListener("mouseenter", () => {
+        if (correspondingPlanAbsolute) {
+          gsap.to(correspondingPlanAbsolute, {
+            opacity: 1,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+        }
+      });
+
+      path.addEventListener("mouseleave", () => {
+        if (correspondingPlanAbsolute) {
+          gsap.to(correspondingPlanAbsolute, {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.out",
+          });
         }
       });
     });
@@ -466,6 +505,13 @@ document.addEventListener("DOMContentLoaded", function () {
             const clonedPlan = plan.cloneNode(true);
             popupPlan.appendChild(clonedPlan);
           }
+          const planAbsolute = item.querySelector(".appart-plan-absolute");
+          if (planAbsolute) {
+            const clonedPlanAbsolute = planAbsolute.cloneNode(true);
+            // Set initial opacity to 0
+            gsap.set(clonedPlanAbsolute, { opacity: 0 });
+            popupPlan.appendChild(clonedPlanAbsolute);
+          }
         });
 
         // Update .popup--plan with .etage--img src
@@ -499,14 +545,42 @@ document.addEventListener("DOMContentLoaded", function () {
           fillApartmentData(minAppart, levelImage);
         }
 
-        // Add click handlers to plan paths
-        const planPaths = popupPlan.querySelectorAll("path");
-        planPaths.forEach((path) => {
+        // Add click and hover handlers to plan paths
+        const planPaths = popupPlan.querySelectorAll(".appart-plan path");
+        const planAbsoluteElements = popupPlan.querySelectorAll(
+          ".appart-plan-absolute"
+        );
+
+        planPaths.forEach((path, index) => {
+          const correspondingPlanAbsolute = planAbsoluteElements[index];
+
+          // Click handler to change apartment info
           path.addEventListener("click", () => {
             const clickedIndex = Array.from(planPaths).indexOf(path);
             const clickedAppart = appartItems[clickedIndex];
             if (clickedAppart) {
               fillApartmentData(clickedAppart, levelImage);
+            }
+          });
+
+          // Hover handler to show .appart-plan-absolute with opacity animation
+          path.addEventListener("mouseenter", () => {
+            if (correspondingPlanAbsolute) {
+              gsap.to(correspondingPlanAbsolute, {
+                opacity: 1,
+                duration: 0.3,
+                ease: "power2.out",
+              });
+            }
+          });
+
+          path.addEventListener("mouseleave", () => {
+            if (correspondingPlanAbsolute) {
+              gsap.to(correspondingPlanAbsolute, {
+                opacity: 0,
+                duration: 0.3,
+                ease: "power2.out",
+              });
             }
           });
         });
