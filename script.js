@@ -126,6 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Opening level popup for level:", levelNumber);
     currentLevel = levelNumber;
     updateLevelName(levelNumber);
+    updateArrowStates(levelNumber);
 
     const popup = document.querySelector(".popup");
     const popupPlan = popup.querySelector(".popup--plan");
@@ -455,6 +456,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Update arrow states based on current level
+  function updateArrowStates(levelNumber) {
+    const allLevels = document.querySelectorAll(".etage--el");
+    const totalLevels = allLevels.length;
+    const downArrow = document.querySelector(".arrow--flex.is--down");
+    const upArrow = document.querySelector(".arrow--flex.is--up");
+
+    if (downArrow) {
+      if (levelNumber === 1) {
+        downArrow.classList.add("is--disabled");
+      } else {
+        downArrow.classList.remove("is--disabled");
+      }
+    }
+
+    if (upArrow) {
+      if (levelNumber === totalLevels) {
+        upArrow.classList.add("is--disabled");
+      } else {
+        upArrow.classList.remove("is--disabled");
+      }
+    }
+  }
+
   // Find next available level (up)
   function getNextLevelUp(currentLevelNum) {
     const allLevels = document.querySelectorAll(".etage--el");
@@ -497,6 +522,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Update level and content without moving popup
       currentLevel = levelNumber;
       updateLevelName(levelNumber);
+      updateArrowStates(levelNumber);
 
       // Update popup content without animation
       const popup = document.querySelector(".popup");
@@ -648,13 +674,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (e.target.closest(".arrow--flex.is--up")) {
       e.preventDefault();
 
+      // Don't proceed if arrow is disabled
+      const upArrow = e.target.closest(".arrow--flex.is--up");
+      if (upArrow && upArrow.classList.contains("is--disabled")) {
+        return;
+      }
+
       // Animate arrow click
-      gsap.to(e.target.closest(".arrow--flex.is--up"), {
+      gsap.to(upArrow, {
         scale: 0.9,
         duration: 0.1,
         ease: "power2.out",
         onComplete: () => {
-          gsap.to(e.target.closest(".arrow--flex.is--up"), {
+          gsap.to(upArrow, {
             scale: 1,
             duration: 0.1,
             ease: "power2.out",
@@ -676,13 +708,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (e.target.closest(".arrow--flex.is--down")) {
       e.preventDefault();
 
+      // Don't proceed if arrow is disabled
+      const downArrow = e.target.closest(".arrow--flex.is--down");
+      if (downArrow && downArrow.classList.contains("is--disabled")) {
+        return;
+      }
+
       // Animate arrow click
-      gsap.to(e.target.closest(".arrow--flex.is--down"), {
+      gsap.to(downArrow, {
         scale: 0.9,
         duration: 0.1,
         ease: "power2.out",
         onComplete: () => {
-          gsap.to(e.target.closest(".arrow--flex.is--down"), {
+          gsap.to(downArrow, {
             scale: 1,
             duration: 0.1,
             ease: "power2.out",
