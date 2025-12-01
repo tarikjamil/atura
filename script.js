@@ -287,6 +287,15 @@ document.addEventListener("DOMContentLoaded", function () {
             ease: "power2.out",
           });
         }
+        // Animate .etage--img opacity from 1 to 0.4
+        const popupImage = popupPlan.querySelector(".etage--img");
+        if (popupImage) {
+          gsap.to(popupImage, {
+            opacity: 0.4,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+        }
       });
 
       path.addEventListener("mouseleave", () => {
@@ -295,6 +304,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (correspondingPlanAbsolute) {
           gsap.to(correspondingPlanAbsolute, {
             opacity: 0,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+        }
+        // Animate .etage--img opacity back to 1
+        const popupImage = popupPlan.querySelector(".etage--img");
+        if (popupImage) {
+          gsap.to(popupImage, {
+            opacity: 1,
             duration: 0.3,
             ease: "power2.out",
           });
@@ -580,6 +598,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 ease: "power2.out",
               });
             }
+            // Animate .etage--img opacity from 1 to 0.4
+            const popupImage = popupPlan.querySelector(".etage--img");
+            if (popupImage) {
+              gsap.to(popupImage, {
+                opacity: 0.4,
+                duration: 0.3,
+                ease: "power2.out",
+              });
+            }
           });
 
           path.addEventListener("mouseleave", () => {
@@ -588,6 +615,15 @@ document.addEventListener("DOMContentLoaded", function () {
             if (correspondingPlanAbsolute) {
               gsap.to(correspondingPlanAbsolute, {
                 opacity: 0,
+                duration: 0.3,
+                ease: "power2.out",
+              });
+            }
+            // Animate .etage--img opacity back to 1
+            const popupImage = popupPlan.querySelector(".etage--img");
+            if (popupImage) {
+              gsap.to(popupImage, {
+                opacity: 1,
                 duration: 0.3,
                 ease: "power2.out",
               });
