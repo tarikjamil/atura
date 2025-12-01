@@ -276,10 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       // Hover handler to show .appart-plan-absolute with opacity animation
-      // Keep path opacity unchanged, only animate .appart-plan-absolute
       path.addEventListener("mouseenter", () => {
-        // Ensure path opacity stays at 1 (or its original value)
-        gsap.set(path, { opacity: 1 });
         if (correspondingPlanAbsolute) {
           gsap.to(correspondingPlanAbsolute, {
             opacity: 1,
@@ -299,8 +296,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       path.addEventListener("mouseleave", () => {
-        // Ensure path opacity stays at 1 (or its original value)
-        gsap.set(path, { opacity: 1 });
         if (correspondingPlanAbsolute) {
           gsap.to(correspondingPlanAbsolute, {
             opacity: 0,
@@ -587,10 +582,7 @@ document.addEventListener("DOMContentLoaded", function () {
           });
 
           // Hover handler to show .appart-plan-absolute with opacity animation
-          // Keep path opacity unchanged, only animate .appart-plan-absolute
           path.addEventListener("mouseenter", () => {
-            // Ensure path opacity stays at 1 (or its original value)
-            gsap.set(path, { opacity: 1 });
             if (correspondingPlanAbsolute) {
               gsap.to(correspondingPlanAbsolute, {
                 opacity: 1,
@@ -610,8 +602,6 @@ document.addEventListener("DOMContentLoaded", function () {
           });
 
           path.addEventListener("mouseleave", () => {
-            // Ensure path opacity stays at 1 (or its original value)
-            gsap.set(path, { opacity: 1 });
             if (correspondingPlanAbsolute) {
               gsap.to(correspondingPlanAbsolute, {
                 opacity: 0,
