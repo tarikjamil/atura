@@ -126,7 +126,6 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Opening level popup for level:", levelNumber);
     currentLevel = levelNumber;
     updateLevelName(levelNumber);
-    updateArrowStates(levelNumber);
 
     const popup = document.querySelector(".popup");
     const popupPlan = popup.querySelector(".popup--plan");
@@ -149,6 +148,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Show popup with fade animation
     popup.style.display = "grid";
+
+    // Update arrow states after popup is displayed (use requestAnimationFrame to ensure DOM is ready)
+    requestAnimationFrame(() => {
+      updateArrowStates(levelNumber);
+    });
 
     // Animate popup entrance - just fade in
     gsap.fromTo(
