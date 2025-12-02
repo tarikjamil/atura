@@ -288,11 +288,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const popupImage = popupPlan.querySelector(".etage--img");
         // Use timeline to animate all elements simultaneously
         const tl = gsap.timeline();
-        tl.to(path, {
-          opacity: 1,
-          duration: 0.3,
-          ease: "power2.out",
-        });
         if (correspondingPlanAbsolute) {
           tl.to(
             correspondingPlanAbsolute,
@@ -321,11 +316,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const popupImage = popupPlan.querySelector(".etage--img");
         // Use timeline to animate all elements simultaneously
         const tl = gsap.timeline();
-        tl.to(path, {
-          opacity: 0,
-          duration: 0.3,
-          ease: "power2.out",
-        });
         if (correspondingPlanAbsolute) {
           tl.to(
             correspondingPlanAbsolute,
@@ -650,11 +640,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const popupImage = popupPlan.querySelector(".etage--img");
             // Use timeline to animate all elements simultaneously
             const tl = gsap.timeline();
-            tl.to(path, {
-              opacity: 1,
-              duration: 0.3,
-              ease: "power2.out",
-            });
             if (correspondingPlanAbsolute) {
               tl.to(
                 correspondingPlanAbsolute,
@@ -683,11 +668,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const popupImage = popupPlan.querySelector(".etage--img");
             // Use timeline to animate all elements simultaneously
             const tl = gsap.timeline();
-            tl.to(path, {
-              opacity: 0,
-              duration: 0.3,
-              ease: "power2.out",
-            });
             if (correspondingPlanAbsolute) {
               tl.to(
                 correspondingPlanAbsolute,
