@@ -265,6 +265,9 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(`Plan path ${index}:`, path);
       const correspondingPlanAbsolute = planAbsoluteElements[index];
 
+      // Set initial path opacity to 0
+      gsap.set(path, { opacity: 0 });
+
       // Click handler to change apartment info
       path.addEventListener("click", () => {
         const clickedIndex = Array.from(planPaths).indexOf(path);
@@ -282,6 +285,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Hover handler to show .appart-plan-absolute with opacity animation
       path.addEventListener("mouseenter", () => {
+        // Animate path opacity from 0 to 1
+        gsap.to(path, {
+          opacity: 1,
+          duration: 0.3,
+          ease: "power2.out",
+        });
         if (correspondingPlanAbsolute) {
           gsap.to(correspondingPlanAbsolute, {
             opacity: 1,
@@ -301,6 +310,12 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       path.addEventListener("mouseleave", () => {
+        // Animate path opacity back to 0
+        gsap.to(path, {
+          opacity: 0,
+          duration: 0.3,
+          ease: "power2.out",
+        });
         if (correspondingPlanAbsolute) {
           gsap.to(correspondingPlanAbsolute, {
             opacity: 0,
@@ -602,6 +617,9 @@ document.addEventListener("DOMContentLoaded", function () {
         planPaths.forEach((path, index) => {
           const correspondingPlanAbsolute = planAbsoluteElements[index];
 
+          // Set initial path opacity to 0
+          gsap.set(path, { opacity: 0 });
+
           // Click handler to change apartment info
           path.addEventListener("click", () => {
             const clickedIndex = Array.from(planPaths).indexOf(path);
@@ -613,6 +631,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Hover handler to show .appart-plan-absolute with opacity animation
           path.addEventListener("mouseenter", () => {
+            // Animate path opacity from 0 to 1
+            gsap.to(path, {
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out",
+            });
             if (correspondingPlanAbsolute) {
               gsap.to(correspondingPlanAbsolute, {
                 opacity: 1,
@@ -632,6 +656,12 @@ document.addEventListener("DOMContentLoaded", function () {
           });
 
           path.addEventListener("mouseleave", () => {
+            // Animate path opacity back to 0
+            gsap.to(path, {
+              opacity: 0,
+              duration: 0.3,
+              ease: "power2.out",
+            });
             if (correspondingPlanAbsolute) {
               gsap.to(correspondingPlanAbsolute, {
                 opacity: 0,
