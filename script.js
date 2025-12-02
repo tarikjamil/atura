@@ -223,6 +223,9 @@ document.addEventListener("DOMContentLoaded", function () {
         popupPlanImg.offsetHeight; // Trigger reflow
         popupPlanImg.style.display = "";
 
+        // Set .etage--img opacity to 0.4 permanently
+        gsap.set(popupPlanImg, { opacity: 0.4 });
+
         console.log("Updated .popup--plan img src and srcset");
       } else {
         console.error("No img found in .popup--plan");
@@ -325,7 +328,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Hover handler to show .appart-plan-absolute with opacity animation
       path.addEventListener("mouseenter", () => {
-        const popupImage = popupPlan.querySelector(".etage--img");
         // Use timeline to animate all elements simultaneously
         const tl = gsap.timeline();
 
@@ -357,22 +359,9 @@ document.addEventListener("DOMContentLoaded", function () {
             0
           ); // Start at same time (position 0)
         }
-
-        if (popupImage) {
-          tl.to(
-            popupImage,
-            {
-              opacity: 0.4,
-              duration: 0.3,
-              ease: "power2.out",
-            },
-            0
-          ); // Start at same time (position 0)
-        }
       });
 
       path.addEventListener("mouseleave", () => {
-        const popupImage = popupPlan.querySelector(".etage--img");
         // Use timeline to animate all elements simultaneously
         const tl = gsap.timeline();
 
@@ -403,18 +392,6 @@ document.addEventListener("DOMContentLoaded", function () {
               0
             );
           }
-        }
-
-        if (popupImage) {
-          tl.to(
-            popupImage,
-            {
-              opacity: 1,
-              duration: 0.3,
-              ease: "power2.out",
-            },
-            0
-          ); // Start at same time (position 0)
         }
       });
     });
@@ -669,6 +646,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (levelImgSrcset) {
               popupPlanImg.setAttribute("srcset", levelImgSrcset);
             }
+            // Set .etage--img opacity to 0.4 permanently
+            gsap.set(popupPlanImg, { opacity: 0.4 });
           }
         }
 
@@ -753,7 +732,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Hover handler to show .appart-plan-absolute with opacity animation
           path.addEventListener("mouseenter", () => {
-            const popupImage = popupPlan.querySelector(".etage--img");
             // Use timeline to animate all elements simultaneously
             const tl = gsap.timeline();
 
@@ -788,22 +766,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 0
               ); // Start at same time (position 0)
             }
-
-            if (popupImage) {
-              tl.to(
-                popupImage,
-                {
-                  opacity: 0.4,
-                  duration: 0.3,
-                  ease: "power2.out",
-                },
-                0
-              ); // Start at same time (position 0)
-            }
           });
 
           path.addEventListener("mouseleave", () => {
-            const popupImage = popupPlan.querySelector(".etage--img");
             // Use timeline to animate all elements simultaneously
             const tl = gsap.timeline();
 
@@ -834,18 +799,6 @@ document.addEventListener("DOMContentLoaded", function () {
                   0
                 );
               }
-            }
-
-            if (popupImage) {
-              tl.to(
-                popupImage,
-                {
-                  opacity: 1,
-                  duration: 0.3,
-                  ease: "power2.out",
-                },
-                0
-              ); // Start at same time (position 0)
             }
           });
         });
