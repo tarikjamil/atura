@@ -285,52 +285,68 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Hover handler to show .appart-plan-absolute with opacity animation
       path.addEventListener("mouseenter", () => {
-        // Animate path opacity from 0 to 1
-        gsap.to(path, {
+        const popupImage = popupPlan.querySelector(".etage--img");
+        // Use timeline to animate all elements simultaneously
+        const tl = gsap.timeline();
+        tl.to(path, {
           opacity: 1,
           duration: 0.3,
           ease: "power2.out",
         });
         if (correspondingPlanAbsolute) {
-          gsap.to(correspondingPlanAbsolute, {
-            opacity: 1,
-            duration: 0.3,
-            ease: "power2.out",
-          });
+          tl.to(
+            correspondingPlanAbsolute,
+            {
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out",
+            },
+            0
+          ); // Start at same time (position 0)
         }
-        // Animate .etage--img opacity from 1 to 0.4
-        const popupImage = popupPlan.querySelector(".etage--img");
         if (popupImage) {
-          gsap.to(popupImage, {
-            opacity: 0.4,
-            duration: 0.3,
-            ease: "power2.out",
-          });
+          tl.to(
+            popupImage,
+            {
+              opacity: 0.4,
+              duration: 0.3,
+              ease: "power2.out",
+            },
+            0
+          ); // Start at same time (position 0)
         }
       });
 
       path.addEventListener("mouseleave", () => {
-        // Animate path opacity back to 0
-        gsap.to(path, {
+        const popupImage = popupPlan.querySelector(".etage--img");
+        // Use timeline to animate all elements simultaneously
+        const tl = gsap.timeline();
+        tl.to(path, {
           opacity: 0,
           duration: 0.3,
           ease: "power2.out",
         });
         if (correspondingPlanAbsolute) {
-          gsap.to(correspondingPlanAbsolute, {
-            opacity: 0,
-            duration: 0.3,
-            ease: "power2.out",
-          });
+          tl.to(
+            correspondingPlanAbsolute,
+            {
+              opacity: 0,
+              duration: 0.3,
+              ease: "power2.out",
+            },
+            0
+          ); // Start at same time (position 0)
         }
-        // Animate .etage--img opacity back to 1
-        const popupImage = popupPlan.querySelector(".etage--img");
         if (popupImage) {
-          gsap.to(popupImage, {
-            opacity: 1,
-            duration: 0.3,
-            ease: "power2.out",
-          });
+          tl.to(
+            popupImage,
+            {
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out",
+            },
+            0
+          ); // Start at same time (position 0)
         }
       });
     });
@@ -631,52 +647,68 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Hover handler to show .appart-plan-absolute with opacity animation
           path.addEventListener("mouseenter", () => {
-            // Animate path opacity from 0 to 1
-            gsap.to(path, {
+            const popupImage = popupPlan.querySelector(".etage--img");
+            // Use timeline to animate all elements simultaneously
+            const tl = gsap.timeline();
+            tl.to(path, {
               opacity: 1,
               duration: 0.3,
               ease: "power2.out",
             });
             if (correspondingPlanAbsolute) {
-              gsap.to(correspondingPlanAbsolute, {
-                opacity: 1,
-                duration: 0.3,
-                ease: "power2.out",
-              });
+              tl.to(
+                correspondingPlanAbsolute,
+                {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: "power2.out",
+                },
+                0
+              ); // Start at same time (position 0)
             }
-            // Animate .etage--img opacity from 1 to 0.4
-            const popupImage = popupPlan.querySelector(".etage--img");
             if (popupImage) {
-              gsap.to(popupImage, {
-                opacity: 0.4,
-                duration: 0.3,
-                ease: "power2.out",
-              });
+              tl.to(
+                popupImage,
+                {
+                  opacity: 0.4,
+                  duration: 0.3,
+                  ease: "power2.out",
+                },
+                0
+              ); // Start at same time (position 0)
             }
           });
 
           path.addEventListener("mouseleave", () => {
-            // Animate path opacity back to 0
-            gsap.to(path, {
+            const popupImage = popupPlan.querySelector(".etage--img");
+            // Use timeline to animate all elements simultaneously
+            const tl = gsap.timeline();
+            tl.to(path, {
               opacity: 0,
               duration: 0.3,
               ease: "power2.out",
             });
             if (correspondingPlanAbsolute) {
-              gsap.to(correspondingPlanAbsolute, {
-                opacity: 0,
-                duration: 0.3,
-                ease: "power2.out",
-              });
+              tl.to(
+                correspondingPlanAbsolute,
+                {
+                  opacity: 0,
+                  duration: 0.3,
+                  ease: "power2.out",
+                },
+                0
+              ); // Start at same time (position 0)
             }
-            // Animate .etage--img opacity back to 1
-            const popupImage = popupPlan.querySelector(".etage--img");
             if (popupImage) {
-              gsap.to(popupImage, {
-                opacity: 1,
-                duration: 0.3,
-                ease: "power2.out",
-              });
+              tl.to(
+                popupImage,
+                {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: "power2.out",
+                },
+                0
+              ); // Start at same time (position 0)
             }
           });
         });
