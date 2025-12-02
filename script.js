@@ -243,12 +243,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // If found, fill the apartment details
+    let activeApartmentIndex = null;
     if (minAppart) {
       console.log(
         "Filling apartment data for apartment with number:",
         minNumber
       );
       fillApartmentData(minAppart, levelImage);
+      // Find the index of the active apartment
+      activeApartmentIndex = Array.from(appartItems).indexOf(minAppart);
     } else {
       console.log("No minimum apartment found");
     }
@@ -260,6 +263,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const planAbsoluteElements = popupPlan.querySelectorAll(
       ".appart-plan-absolute"
     );
+
+    // Set initial opacity: active apartment at 1, others at 0
+    planAbsoluteElements.forEach((el, index) => {
+      if (index === activeApartmentIndex) {
+        gsap.set(el, { opacity: 1 });
+      } else {
+        gsap.set(el, { opacity: 0 });
+      }
+    });
 
     planPaths.forEach((path, index) => {
       console.log(`Plan path ${index}:`, path);
@@ -280,6 +292,34 @@ document.addEventListener("DOMContentLoaded", function () {
         );
         if (clickedAppart) {
           fillApartmentData(clickedAppart, levelImage);
+          // Update active apartment
+          const previousActiveIndex = activeApartmentIndex;
+          activeApartmentIndex = clickedIndex;
+
+          // Fade out previous active apartment's .appart-plan-absolute
+          if (
+            previousActiveIndex !== null &&
+            previousActiveIndex !== activeApartmentIndex
+          ) {
+            const previousActiveAbsolute =
+              planAbsoluteElements[previousActiveIndex];
+            if (previousActiveAbsolute) {
+              gsap.to(previousActiveAbsolute, {
+                opacity: 0,
+                duration: 0.3,
+                ease: "power2.out",
+              });
+            }
+          }
+
+          // Fade in new active apartment's .appart-plan-absolute
+          if (correspondingPlanAbsolute) {
+            gsap.to(correspondingPlanAbsolute, {
+              opacity: 1,
+              duration: 0.3,
+              ease: "power2.out",
+            });
+          }
         }
       });
 
@@ -288,7 +328,25 @@ document.addEventListener("DOMContentLoaded", function () {
         const popupImage = popupPlan.querySelector(".etage--img");
         // Use timeline to animate all elements simultaneously
         const tl = gsap.timeline();
-        if (correspondingPlanAbsolute) {
+
+        // If hovering a different apartment, fade out the active one
+        if (index !== activeApartmentIndex && activeApartmentIndex !== null) {
+          const activeAbsolute = planAbsoluteElements[activeApartmentIndex];
+          if (activeAbsolute) {
+            tl.to(
+              activeAbsolute,
+              {
+                opacity: 0,
+                duration: 0.3,
+                ease: "power2.out",
+              },
+              0
+            );
+          }
+        }
+
+        // Show hovered apartment's .appart-plan-absolute
+        if (correspondingPlanAbsolute && index !== activeApartmentIndex) {
           tl.to(
             correspondingPlanAbsolute,
             {
@@ -299,6 +357,7 @@ document.addEventListener("DOMContentLoaded", function () {
             0
           ); // Start at same time (position 0)
         }
+
         if (popupImage) {
           tl.to(
             popupImage,
@@ -316,7 +375,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const popupImage = popupPlan.querySelector(".etage--img");
         // Use timeline to animate all elements simultaneously
         const tl = gsap.timeline();
-        if (correspondingPlanAbsolute) {
+
+        // Hide hovered apartment's .appart-plan-absolute (if it's not the active one)
+        if (correspondingPlanAbsolute && index !== activeApartmentIndex) {
           tl.to(
             correspondingPlanAbsolute,
             {
@@ -325,8 +386,25 @@ document.addEventListener("DOMContentLoaded", function () {
               ease: "power2.out",
             },
             0
-          ); // Start at same time (position 0)
+          );
         }
+
+        // Show active apartment's .appart-plan-absolute again
+        if (activeApartmentIndex !== null) {
+          const activeAbsolute = planAbsoluteElements[activeApartmentIndex];
+          if (activeAbsolute) {
+            tl.to(
+              activeAbsolute,
+              {
+                opacity: 1,
+                duration: 0.3,
+                ease: "power2.out",
+              },
+              0
+            );
+          }
+        }
+
         if (popupImage) {
           tl.to(
             popupImage,
@@ -577,8 +655,6 @@ document.addEventListener("DOMContentLoaded", function () {
           const planAbsolute = item.querySelector(".appart-plan-absolute");
           if (planAbsolute) {
             const clonedPlanAbsolute = planAbsolute.cloneNode(true);
-            // Set initial opacity to 0
-            gsap.set(clonedPlanAbsolute, { opacity: 0 });
             popupPlan.appendChild(clonedPlanAbsolute);
           }
         });
@@ -610,8 +686,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // If found, fill the apartment data
+        let activeApartmentIndex = null;
         if (minAppart) {
           fillApartmentData(minAppart, levelImage);
+          // Find the index of the active apartment
+          activeApartmentIndex = Array.from(appartItems).indexOf(minAppart);
         }
 
         // Add click and hover handlers to plan paths
@@ -619,6 +698,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const planAbsoluteElements = popupPlan.querySelectorAll(
           ".appart-plan-absolute"
         );
+
+        // Set initial opacity: active apartment at 1, others at 0
+        planAbsoluteElements.forEach((el, index) => {
+          if (index === activeApartmentIndex) {
+            gsap.set(el, { opacity: 1 });
+          } else {
+            gsap.set(el, { opacity: 0 });
+          }
+        });
 
         planPaths.forEach((path, index) => {
           const correspondingPlanAbsolute = planAbsoluteElements[index];
@@ -632,6 +720,34 @@ document.addEventListener("DOMContentLoaded", function () {
             const clickedAppart = appartItems[clickedIndex];
             if (clickedAppart) {
               fillApartmentData(clickedAppart, levelImage);
+              // Update active apartment
+              const previousActiveIndex = activeApartmentIndex;
+              activeApartmentIndex = clickedIndex;
+
+              // Fade out previous active apartment's .appart-plan-absolute
+              if (
+                previousActiveIndex !== null &&
+                previousActiveIndex !== activeApartmentIndex
+              ) {
+                const previousActiveAbsolute =
+                  planAbsoluteElements[previousActiveIndex];
+                if (previousActiveAbsolute) {
+                  gsap.to(previousActiveAbsolute, {
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "power2.out",
+                  });
+                }
+              }
+
+              // Fade in new active apartment's .appart-plan-absolute
+              if (correspondingPlanAbsolute) {
+                gsap.to(correspondingPlanAbsolute, {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: "power2.out",
+                });
+              }
             }
           });
 
@@ -640,7 +756,28 @@ document.addEventListener("DOMContentLoaded", function () {
             const popupImage = popupPlan.querySelector(".etage--img");
             // Use timeline to animate all elements simultaneously
             const tl = gsap.timeline();
-            if (correspondingPlanAbsolute) {
+
+            // If hovering a different apartment, fade out the active one
+            if (
+              index !== activeApartmentIndex &&
+              activeApartmentIndex !== null
+            ) {
+              const activeAbsolute = planAbsoluteElements[activeApartmentIndex];
+              if (activeAbsolute) {
+                tl.to(
+                  activeAbsolute,
+                  {
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "power2.out",
+                  },
+                  0
+                );
+              }
+            }
+
+            // Show hovered apartment's .appart-plan-absolute
+            if (correspondingPlanAbsolute && index !== activeApartmentIndex) {
               tl.to(
                 correspondingPlanAbsolute,
                 {
@@ -651,6 +788,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 0
               ); // Start at same time (position 0)
             }
+
             if (popupImage) {
               tl.to(
                 popupImage,
@@ -668,7 +806,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const popupImage = popupPlan.querySelector(".etage--img");
             // Use timeline to animate all elements simultaneously
             const tl = gsap.timeline();
-            if (correspondingPlanAbsolute) {
+
+            // Hide hovered apartment's .appart-plan-absolute (if it's not the active one)
+            if (correspondingPlanAbsolute && index !== activeApartmentIndex) {
               tl.to(
                 correspondingPlanAbsolute,
                 {
@@ -677,8 +817,25 @@ document.addEventListener("DOMContentLoaded", function () {
                   ease: "power2.out",
                 },
                 0
-              ); // Start at same time (position 0)
+              );
             }
+
+            // Show active apartment's .appart-plan-absolute again
+            if (activeApartmentIndex !== null) {
+              const activeAbsolute = planAbsoluteElements[activeApartmentIndex];
+              if (activeAbsolute) {
+                tl.to(
+                  activeAbsolute,
+                  {
+                    opacity: 1,
+                    duration: 0.3,
+                    ease: "power2.out",
+                  },
+                  0
+                );
+              }
+            }
+
             if (popupImage) {
               tl.to(
                 popupImage,
