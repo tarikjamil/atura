@@ -1147,48 +1147,104 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // Get the apartment page URL from .appart-link
-  function getAppartPageUrl() {
-    const appartEl = getCurrentAppartEl();
-    if (!appartEl) {
-      console.log("No apartment element found");
+  // Get current level number and apartment number
+  function getCurrentInfo() {
+    const levelName = norm(qs('[level="name"]')?.textContent);
+    const apartmentNumber = norm(qs('[data="number"]')?.textContent);
+
+    return {
+      level: levelName,
+      apartmentNumber: apartmentNumber,
+    };
+  }
+
+  // Fetch the floor page and find the apartment link
+  async function getAppartPageUrl() {
+    const { level, apartmentNumber } = getCurrentInfo();
+
+    if (!level) {
+      console.log("No level found");
       return null;
     }
 
-    console.log("Apartment element:", appartEl);
-    console.log(
-      "Apartment element HTML:",
-      appartEl.innerHTML.substring(0, 500)
-    );
+    if (!apartmentNumber) {
+      console.log("No apartment number found");
+      return null;
+    }
 
-    // Try multiple selectors to find the link
-    const link =
-      qs(".appart-link", appartEl) ||
-      qs("a.appart-link", appartEl) ||
-      qs("[class*='appart-link']", appartEl) ||
-      qs("a[href*='/appartements']", appartEl) ||
-      qs("a[href*='/appartments']", appartEl) ||
-      qs("a[href*='/apartment']", appartEl) ||
-      qs("a", appartEl); // fallback to any link
+    console.log("Current level:", level);
+    console.log("Current apartment number:", apartmentNumber);
 
-    if (!link) {
-      console.log("No link found inside apartment element");
+    // Fetch the floor page
+    const floorPageUrl = `/etages/${level}`;
+    console.log("Fetching floor page:", floorPageUrl);
+
+    try {
+      const response = await fetch(floorPageUrl);
+      if (!response.ok) {
+        console.error("Failed to fetch floor page:", response.status);
+        return null;
+      }
+
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      // Find all .appart-link elements on the floor page
+      const appartLinks = qsa(".appart-link", doc);
+      console.log("Found", appartLinks.length, "apartment links on floor page");
+
+      // Find the link that matches our apartment number
+      for (const link of appartLinks) {
+        // Look for apartment number inside or near this link
+        const linkNumber =
+          norm(qs(".appart-number", link)?.textContent) ||
+          norm(qs(".appart-number", link.parentElement)?.textContent) ||
+          norm(
+            link.closest(".appart-item")?.querySelector(".appart-number")
+              ?.textContent
+          ) ||
+          norm(
+            link.closest(".w-dyn-item")?.querySelector(".appart-number")
+              ?.textContent
+          );
+
+        console.log("Checking link, found number:", linkNumber);
+
+        if (linkNumber === apartmentNumber) {
+          const href = link.getAttribute("href");
+          console.log("Found matching apartment link:", href);
+          return href;
+        }
+      }
+
+      // If no match by number, try to find by checking all links
       console.log(
-        "All links in document with appart:",
-        qsa("a[class*='appart']")
+        "No exact match found, checking all links for apartment number in URL or content"
       );
+      for (const link of appartLinks) {
+        const href = link.getAttribute("href") || "";
+        // Check if the URL contains the apartment number
+        if (
+          href.includes(apartmentNumber) ||
+          href.includes(`-${apartmentNumber}`)
+        ) {
+          console.log("Found link by URL match:", href);
+          return href;
+        }
+      }
+
+      console.log("No matching apartment link found on floor page");
+      return null;
+    } catch (error) {
+      console.error("Error fetching floor page:", error);
       return null;
     }
-
-    console.log("Found link:", link);
-    console.log("Link href:", link.getAttribute("href"));
-
-    return link.getAttribute("href") || null;
   }
 
   // Fetch apartment page and extract gallery images
   async function fetchGalleryImages() {
-    const url = getAppartPageUrl();
+    const url = await getAppartPageUrl();
     if (!url) {
       console.log("No apartment link found");
       return [];
