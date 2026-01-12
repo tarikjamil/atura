@@ -125,7 +125,54 @@ document.addEventListener("DOMContentLoaded", function () {
   // Cache for fetched floor data
   const floorDataCache = new Map();
 
-  // Fetch floor page data
+  // Store current apartment data for gallery access
+  let currentApartmentData = null;
+
+  // Fetch individual apartment page data
+  async function fetchApartmentData(apartmentUrl) {
+    console.log("Fetching apartment page:", apartmentUrl);
+    try {
+      const response = await fetch(apartmentUrl);
+      if (!response.ok) {
+        console.error("Failed to fetch apartment page:", response.status);
+        return null;
+      }
+
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      // Extract apartment data from the individual apartment page
+      const apartmentData = {
+        number: doc.querySelector(".appart-number")?.textContent?.trim() || "",
+        etage: doc.querySelector(".appart-etage")?.textContent?.trim() || "",
+        pieces: doc.querySelector(".appart-pieces")?.textContent?.trim() || "",
+        surface:
+          doc.querySelector(".appart-surface")?.textContent?.trim() || "",
+        balcon: doc.querySelector(".appart-balcon")?.textContent?.trim() || "",
+        disponibilite:
+          doc.querySelector(".appart-disponibilite")?.textContent?.trim() || "",
+        loyer: doc.querySelector(".appart-loyer")?.textContent?.trim() || "",
+        charges:
+          doc.querySelector(".appart-charges")?.textContent?.trim() || "",
+        visite360:
+          doc.querySelector(".appart-visite360")?.textContent?.trim() || "",
+        plan3d: doc.querySelector(".appart-plan3d"),
+        planAbsolute: doc.querySelector(".appart-plan-absolute"),
+        plan: doc.querySelector(".appart-plan"),
+        gallery: Array.from(doc.querySelectorAll(".appart-gallery-img")),
+        url: apartmentUrl,
+      };
+
+      console.log("Fetched apartment data:", apartmentData.number);
+      return apartmentData;
+    } catch (error) {
+      console.error("Error fetching apartment page:", error);
+      return null;
+    }
+  }
+
+  // Fetch floor page data (floor image + all apartment details)
   async function fetchFloorData(levelNumber) {
     // Check cache first
     if (floorDataCache.has(levelNumber)) {
@@ -147,21 +194,36 @@ document.addEventListener("DOMContentLoaded", function () {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, "text/html");
 
-      // Extract all necessary data from the fetched page
+      // Get floor image from etages page
       const levelImage = doc.querySelector(".etage--img");
-      const appartItems = Array.from(doc.querySelectorAll(".appart-item"));
+
+      // Get all apartment links from etages page
       const appartLinks = Array.from(doc.querySelectorAll(".appart-link"));
 
       console.log(
         "Fetched floor data - Level image:",
         levelImage ? "found" : "not found"
       );
-      console.log("Fetched floor data - Apartment items:", appartItems.length);
       console.log("Fetched floor data - Apartment links:", appartLinks.length);
+
+      // Fetch each individual apartment page to get full data
+      const apartmentUrls = appartLinks
+        .map((link) => link.getAttribute("href"))
+        .filter(Boolean);
+      console.log("Fetching apartment pages:", apartmentUrls);
+
+      const apartmentDataPromises = apartmentUrls.map((url) =>
+        fetchApartmentData(url)
+      );
+      const apartmentDataArray = await Promise.all(apartmentDataPromises);
+
+      // Filter out failed fetches
+      const appartItems = apartmentDataArray.filter((data) => data !== null);
+      console.log("Successfully fetched apartments:", appartItems.length);
 
       const floorData = {
         levelImage,
-        appartItems,
+        appartItems, // Now contains full apartment data objects
         appartLinks,
         doc,
       };
@@ -225,16 +287,19 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Added level image to popup plan");
     }
 
-    appartItems.forEach((item, index) => {
-      const plan = item.querySelector(".appart-plan");
-      if (plan) {
-        const clonedPlan = plan.cloneNode(true);
+    // appartItems is now an array of data objects with plan/planAbsolute as DOM elements
+    appartItems.forEach((apartmentData, index) => {
+      if (apartmentData.plan) {
+        const clonedPlan = apartmentData.plan.cloneNode(true);
         popupPlan.appendChild(clonedPlan);
-        console.log(`Added apartment plan ${index + 1} to popup`);
+        console.log(
+          `Added apartment plan ${index + 1} (apt #${
+            apartmentData.number
+          }) to popup`
+        );
       }
-      const planAbsolute = item.querySelector(".appart-plan-absolute");
-      if (planAbsolute) {
-        const clonedPlanAbsolute = planAbsolute.cloneNode(true);
+      if (apartmentData.planAbsolute) {
+        const clonedPlanAbsolute = apartmentData.planAbsolute.cloneNode(true);
         gsap.set(clonedPlanAbsolute, { opacity: 0 });
         popupPlan.appendChild(clonedPlanAbsolute);
         console.log(`Added apartment plan absolute ${index + 1} to popup`);
@@ -247,24 +312,19 @@ document.addEventListener("DOMContentLoaded", function () {
       gsap.set(popupPlanImg, { opacity: 0.4 });
     }
 
-    // Find the apartment with the smallest .appart-number (or first one if none have numbers)
+    // Find the apartment with the smallest number (or first one if none have numbers)
     let firstAppart = null;
     let firstAppartIndex = 0;
     let minNumber = Infinity;
 
-    appartItems.forEach((item, index) => {
-      const numberEl = item.querySelector(".appart-number");
-      // Use textContent for fetched elements
-      const numberText = numberEl
-        ? (numberEl.textContent || numberEl.innerText || "").trim()
-        : "";
-      const number = parseInt(numberText || "9999", 10);
+    appartItems.forEach((apartmentData, index) => {
+      const number = parseInt(apartmentData.number || "9999", 10);
       console.log(
-        `Apartment ${index}: number = "${numberText}" (parsed: ${number})`
+        `Apartment ${index}: number = "${apartmentData.number}" (parsed: ${number})`
       );
       if (!isNaN(number) && number < minNumber) {
         minNumber = number;
-        firstAppart = item;
+        firstAppart = apartmentData;
         firstAppartIndex = index;
       }
     });
@@ -416,69 +476,46 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function fillApartmentData(appartEl, levelImage) {
-    console.log("Filling apartment data for element:", appartEl);
+  // fillApartmentData now accepts a data object (from fetchApartmentData)
+  function fillApartmentData(apartmentData, levelImage) {
+    console.log("Filling apartment data for:", apartmentData);
 
-    // Use textContent instead of innerText for fetched elements (works on parsed HTML)
-    const getText = (selector) => {
-      const el = appartEl.querySelector(selector);
-      return el ? (el.textContent || el.innerText || "").trim() : "";
-    };
-
-    const apartmentNumber = getText(".appart-number");
-    const apartmentPieces = getText(".appart-pieces");
-    const apartmentSurface = getText(".appart-surface");
-    const apartmentBalcon = getText(".appart-balcon");
-    const apartmentDisponibilite = getText(".appart-disponibilite");
-    const apartmentLoyer = getText(".appart-loyer");
-    const apartmentCharges = getText(".appart-charges");
-    const visite360 = getText(".appart-visite360");
-
-    console.log("Apartment data extracted:", {
-      number: apartmentNumber,
-      pieces: apartmentPieces,
-      surface: apartmentSurface,
-      balcon: apartmentBalcon,
-      disponibilite: apartmentDisponibilite,
-      loyer: apartmentLoyer,
-      charges: apartmentCharges,
-      visite360: visite360,
-    });
+    // Store current apartment for gallery access
+    currentApartmentData = apartmentData;
 
     // Helper to set text on target elements
     const setTargetText = (selector, value) => {
       const el = document.querySelector(selector);
       if (el) {
-        el.innerText = value;
+        el.innerText = value || "";
         console.log(`Set ${selector} to:`, value);
       } else {
         console.warn(`Target element ${selector} not found`);
       }
     };
 
-    // Fill all data fields
-    setTargetText('[data="number"]', apartmentNumber);
-    setTargetText('[data="pieces"]', apartmentPieces);
-    setTargetText('[data="surface"]', apartmentSurface);
-    setTargetText('[data="balcon"]', apartmentBalcon);
-    setTargetText('[data="disponibilite"]', apartmentDisponibilite);
-    setTargetText('[data="loyer"]', apartmentLoyer);
-    setTargetText('[data="charges"]', apartmentCharges);
+    // Fill all data fields directly from the data object
+    setTargetText('[data="number"]', apartmentData.number);
+    setTargetText('[data="pieces"]', apartmentData.pieces);
+    setTargetText('[data="surface"]', apartmentData.surface);
+    setTargetText('[data="balcon"]', apartmentData.balcon);
+    setTargetText('[data="disponibilite"]', apartmentData.disponibilite);
+    setTargetText('[data="loyer"]', apartmentData.loyer);
+    setTargetText('[data="charges"]', apartmentData.charges);
 
     // Set visite360 link
-    if (visite360) {
+    if (apartmentData.visite360) {
       const visite360El = document.querySelector('[data="visite360"]');
       if (visite360El) {
-        visite360El.setAttribute("href", visite360);
-        console.log("Set visite360 href to:", visite360);
+        visite360El.setAttribute("href", apartmentData.visite360);
+        console.log("Set visite360 href to:", apartmentData.visite360);
       }
     }
 
-    // Update .popup--plan-3d with .appart-plan3d src
-    const appartPlan3d = appartEl.querySelector(".appart-plan3d");
-    if (appartPlan3d) {
-      const plan3dSrc = appartPlan3d.getAttribute("src");
-      const plan3dSrcset = appartPlan3d.getAttribute("srcset");
+    // Update [data="plan3d"] with .appart-plan3d src
+    if (apartmentData.plan3d) {
+      const plan3dSrc = apartmentData.plan3d.getAttribute("src");
+      const plan3dSrcset = apartmentData.plan3d.getAttribute("srcset");
       console.log("Apartment plan3d source:", plan3dSrc);
 
       if (plan3dSrc) {
@@ -618,15 +655,14 @@ document.addEventListener("DOMContentLoaded", function () {
         popupPlan.appendChild(clonedImage);
       }
 
-      appartItems.forEach((item) => {
-        const plan = item.querySelector(".appart-plan");
-        if (plan) {
-          const clonedPlan = plan.cloneNode(true);
+      // appartItems is now an array of data objects
+      appartItems.forEach((apartmentData) => {
+        if (apartmentData.plan) {
+          const clonedPlan = apartmentData.plan.cloneNode(true);
           popupPlan.appendChild(clonedPlan);
         }
-        const planAbsolute = item.querySelector(".appart-plan-absolute");
-        if (planAbsolute) {
-          const clonedPlanAbsolute = planAbsolute.cloneNode(true);
+        if (apartmentData.planAbsolute) {
+          const clonedPlanAbsolute = apartmentData.planAbsolute.cloneNode(true);
           popupPlan.appendChild(clonedPlanAbsolute);
         }
       });
@@ -637,21 +673,16 @@ document.addEventListener("DOMContentLoaded", function () {
         gsap.set(popupPlanImg, { opacity: 0.4 });
       }
 
-      // Find the apartment with the smallest .appart-number (or first one)
+      // Find the apartment with the smallest number (or first one)
       let firstAppart = null;
       let firstAppartIndex = 0;
       let minNumber = Infinity;
 
-      appartItems.forEach((item, index) => {
-        const numberEl = item.querySelector(".appart-number");
-        // Use textContent for fetched elements
-        const numberText = numberEl
-          ? (numberEl.textContent || numberEl.innerText || "").trim()
-          : "";
-        const number = parseInt(numberText || "9999", 10);
+      appartItems.forEach((apartmentData, index) => {
+        const number = parseInt(apartmentData.number || "9999", 10);
         if (!isNaN(number) && number < minNumber) {
           minNumber = number;
-          firstAppart = item;
+          firstAppart = apartmentData;
           firstAppartIndex = index;
         }
       });
@@ -1125,37 +1156,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Fetch apartment page and extract gallery images
-  async function fetchGalleryImages() {
-    const url = await getAppartPageUrl();
-    if (!url) {
-      console.log("No apartment link found");
-      return [];
-    }
-
-    try {
-      console.log("Fetching apartment page:", url);
-      const response = await fetch(url);
-      if (!response.ok) {
-        console.error("Failed to fetch apartment page:", response.status);
-        return [];
-      }
-
-      const html = await response.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
-
-      // Get all .appart-gallery-img images from the fetched page
-      const imgs = qsa(GALLERY_IMG_SELECTOR, doc).filter((img) =>
+  // Get gallery images from current apartment data (already fetched)
+  function getGalleryImages() {
+    // First try to use cached current apartment data
+    if (
+      currentApartmentData &&
+      currentApartmentData.gallery &&
+      currentApartmentData.gallery.length > 0
+    ) {
+      console.log(
+        "Using cached gallery images:",
+        currentApartmentData.gallery.length
+      );
+      return currentApartmentData.gallery.filter((img) =>
         img?.getAttribute?.("src")
       );
-
-      console.log("Found", imgs.length, "gallery images");
-      return imgs;
-    } catch (error) {
-      console.error("Error fetching apartment page:", error);
-      return [];
     }
+
+    console.log("No gallery images in current apartment data");
+    return [];
+  }
+
+  // Async wrapper for backward compatibility (in case we need to fetch)
+  async function fetchGalleryImages() {
+    return getGalleryImages();
   }
 
   // ===================== Build UI ===================== //
