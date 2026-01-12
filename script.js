@@ -965,15 +965,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // "cover" = fills (may crop) / "contain" = no crop (may have bars)
   const GALLERY_FIT = "cover";
 
-  // Where to get gallery images from apartment item (priority order)
-  const GALLERY_IMG_SELECTORS = [
-    ".appart-gallery img",
-    ".gallery img",
-    "[data-app='gallery'] img",
-    "[data-gallery] img",
-    ".w-dyn-list img",
-    "img", // ultimate fallback
-  ];
+  // Image selector on the apartment page
+  const GALLERY_IMG_SELECTOR = ".appart-gallery-img";
 
   // ===================== helpers ===================== //
   const qs = (sel, root = document) => root.querySelector(sel);
@@ -1118,7 +1111,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.head.appendChild(st);
   };
 
-  // ===================== Find current apartment (from existing popup) ===================== //
+  // ===================== Find current apartment link ===================== //
   function getCurrentLevelEl() {
     const levelName = norm(qs('[level="name"]')?.textContent);
     if (!levelName) return null;
@@ -1154,15 +1147,48 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  function pickGalleryImages(appartEl) {
-    if (!appartEl) return [];
-    for (const sel of GALLERY_IMG_SELECTORS) {
-      const imgs = qsa(sel, appartEl).filter((img) =>
+  // Get the apartment page URL from .appart-link
+  function getAppartPageUrl() {
+    const appartEl = getCurrentAppartEl();
+    if (!appartEl) return null;
+
+    const link = qs(".appart-link", appartEl);
+    if (!link) return null;
+
+    return link.getAttribute("href") || null;
+  }
+
+  // Fetch apartment page and extract gallery images
+  async function fetchGalleryImages() {
+    const url = getAppartPageUrl();
+    if (!url) {
+      console.log("No apartment link found");
+      return [];
+    }
+
+    try {
+      console.log("Fetching apartment page:", url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error("Failed to fetch apartment page:", response.status);
+        return [];
+      }
+
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      // Get all .appart-gallery-img images from the fetched page
+      const imgs = qsa(GALLERY_IMG_SELECTOR, doc).filter((img) =>
         img?.getAttribute?.("src")
       );
-      if (imgs.length >= 2 || (sel !== "img" && imgs.length >= 1)) return imgs;
+
+      console.log("Found", imgs.length, "gallery images");
+      return imgs;
+    } catch (error) {
+      console.error("Error fetching apartment page:", error);
+      return [];
     }
-    return [];
   }
 
   // ===================== Build UI ===================== //
@@ -1283,18 +1309,24 @@ document.addEventListener("DOMContentLoaded", function () {
     body.appendChild(snap);
   }
 
-  function openGallery() {
+  async function openGallery() {
     ensureBaseStyle();
     const wrapper = ensureWrapper();
 
-    const appartEl = getCurrentAppartEl();
-    const imgs = pickGalleryImages(appartEl);
-
-    buildSlider(wrapper, imgs);
-
+    // Show loading state
     wrapper.style.display = "flex";
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
+
+    const body = qs(".__gallery_body", wrapper);
+    if (body) {
+      body.innerHTML = `<div style="color:#fff; padding:1.5rem; text-align:center;">Loading gallery...</div>`;
+    }
+
+    // Fetch images from apartment page
+    const imgs = await fetchGalleryImages();
+
+    buildSlider(wrapper, imgs);
 
     if (splideInstance) {
       try {
