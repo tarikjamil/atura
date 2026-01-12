@@ -973,10 +973,16 @@ document.addEventListener("DOMContentLoaded", function () {
         transition: transform .18s ease, background .18s ease, border-color .18s ease;
         box-shadow: 0 0.625rem 1.875rem rgba(0,0,0,.20);
       }
+      .__gallery_panel .splide__arrow--prev{
+        transform: rotate(180deg);
+      }
       .__gallery_panel .splide__arrow:hover{
         transform: scale(1.06);
         background: rgba(0,0,0,.40);
         border-color: rgba(255,255,255,.34);
+      }
+      .__gallery_panel .splide__arrow--prev:hover{
+        transform: rotate(180deg) scale(1.06);
       }
       .__gallery_panel .splide__arrow svg{
         fill:#fff;
@@ -987,14 +993,22 @@ document.addEventListener("DOMContentLoaded", function () {
         transform:none;
         background:rgba(0,0,0,.18);
       }
+      .__gallery_panel .splide__arrow--prev:disabled{
+        transform: rotate(180deg);
+      }
 
       /* pagination dots */
       .__gallery_panel .splide__pagination{
         bottom: -0.625rem;
-        padding-top: 0.875rem;
+        padding: 0;
+        gap: 0.5rem;
+        border-radius: 300rem;
       }
       .__gallery_panel .splide__pagination__page{
-        width:0.5rem; height:0.5rem;
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 300rem;
+        padding: 0;
         background: rgba(255,255,255,.35);
         opacity:1;
         transition: transform .18s ease, background .18s ease;
