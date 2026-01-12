@@ -254,7 +254,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     appartItems.forEach((item, index) => {
       const numberEl = item.querySelector(".appart-number");
-      const number = parseInt(numberEl?.innerText || "9999", 10);
+      // Use textContent for fetched elements
+      const numberText = numberEl
+        ? (numberEl.textContent || numberEl.innerText || "").trim()
+        : "";
+      const number = parseInt(numberText || "9999", 10);
+      console.log(
+        `Apartment ${index}: number = "${numberText}" (parsed: ${number})`
+      );
       if (!isNaN(number) && number < minNumber) {
         minNumber = number;
         firstAppart = item;
@@ -411,63 +418,59 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function fillApartmentData(appartEl, levelImage) {
     console.log("Filling apartment data for element:", appartEl);
-    const getText = (selector) =>
-      appartEl.querySelector(selector)?.innerText || "";
-    const getImageSrc = (el) => el?.getAttribute("src") || "";
+
+    // Use textContent instead of innerText for fetched elements (works on parsed HTML)
+    const getText = (selector) => {
+      const el = appartEl.querySelector(selector);
+      return el ? (el.textContent || el.innerText || "").trim() : "";
+    };
 
     const apartmentNumber = getText(".appart-number");
     const apartmentPieces = getText(".appart-pieces");
     const apartmentSurface = getText(".appart-surface");
     const apartmentBalcon = getText(".appart-balcon");
     const apartmentDisponibilite = getText(".appart-disponibilite");
+    const apartmentLoyer = getText(".appart-loyer");
+    const apartmentCharges = getText(".appart-charges");
+    const visite360 = getText(".appart-visite360");
 
-    console.log("Apartment data:", {
+    console.log("Apartment data extracted:", {
       number: apartmentNumber,
       pieces: apartmentPieces,
       surface: apartmentSurface,
       balcon: apartmentBalcon,
       disponibilite: apartmentDisponibilite,
+      loyer: apartmentLoyer,
+      charges: apartmentCharges,
+      visite360: visite360,
     });
 
-    // Debug each element before setting innerText
-    const numberEl = document.querySelector('[data="number"]');
-    const piecesEl = document.querySelector('[data="pieces"]');
-    const surfaceEl = document.querySelector('[data="surface"]');
-    const balconEl = document.querySelector('[data="balcon"]');
-    const disponibiliteEl = document.querySelector('[data="disponibilite"]');
+    // Helper to set text on target elements
+    const setTargetText = (selector, value) => {
+      const el = document.querySelector(selector);
+      if (el) {
+        el.innerText = value;
+        console.log(`Set ${selector} to:`, value);
+      } else {
+        console.warn(`Target element ${selector} not found`);
+      }
+    };
 
-    console.log("Target elements found:", {
-      numberEl,
-      piecesEl,
-      surfaceEl,
-      balconEl,
-      disponibiliteEl,
-    });
+    // Fill all data fields
+    setTargetText('[data="number"]', apartmentNumber);
+    setTargetText('[data="pieces"]', apartmentPieces);
+    setTargetText('[data="surface"]', apartmentSurface);
+    setTargetText('[data="balcon"]', apartmentBalcon);
+    setTargetText('[data="disponibilite"]', apartmentDisponibilite);
+    setTargetText('[data="loyer"]', apartmentLoyer);
+    setTargetText('[data="charges"]', apartmentCharges);
 
-    if (numberEl) numberEl.innerText = apartmentNumber;
-    else console.error('Element [data="number"] not found');
-
-    if (piecesEl) piecesEl.innerText = apartmentPieces;
-    else console.error('Element [data="pieces"] not found');
-
-    if (surfaceEl) surfaceEl.innerText = apartmentSurface;
-    else console.error('Element [data="surface"] not found');
-
-    if (balconEl) balconEl.innerText = apartmentBalcon;
-    else console.error('Element [data="balcon"] not found');
-
-    if (disponibiliteEl) disponibiliteEl.innerText = apartmentDisponibilite;
-    else console.error('Element [data="disponibilite"] not found');
-
-    const visite360 = getText(".appart-visite360");
-    console.log("Visite 360 link:", visite360);
+    // Set visite360 link
     if (visite360) {
       const visite360El = document.querySelector('[data="visite360"]');
-      console.log("Visite 360 element found:", visite360El);
       if (visite360El) {
         visite360El.setAttribute("href", visite360);
-      } else {
-        console.error('Element [data="visite360"] not found');
+        console.log("Set visite360 href to:", visite360);
       }
     }
 
@@ -477,36 +480,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const plan3dSrc = appartPlan3d.getAttribute("src");
       const plan3dSrcset = appartPlan3d.getAttribute("srcset");
       console.log("Apartment plan3d source:", plan3dSrc);
-      console.log("Apartment plan3d srcset:", plan3dSrcset);
 
       if (plan3dSrc) {
         const popup3dEl = document.querySelector('[data="plan3d"]');
-        console.log("Popup 3D element found:", popup3dEl);
         if (popup3dEl) {
-          const currentSrc = popup3dEl.getAttribute("src");
-          const currentSrcset = popup3dEl.getAttribute("srcset");
-          console.log("Current popup 3D src:", currentSrc);
-          console.log("Current popup 3D srcset:", currentSrcset);
-          console.log("Will update to src:", plan3dSrc);
-          console.log("Will update to srcset:", plan3dSrcset);
-
           popup3dEl.setAttribute("src", plan3dSrc);
           if (plan3dSrcset) {
             popup3dEl.setAttribute("srcset", plan3dSrcset);
           }
-
           // Force image reload
           popup3dEl.style.display = "none";
-          popup3dEl.offsetHeight; // Trigger reflow
+          popup3dEl.offsetHeight;
           popup3dEl.style.display = "";
-
-          console.log("Updated popup 3D image src and srcset");
-        } else {
-          console.error('Element [data="plan3d"] not found');
+          console.log("Updated popup 3D image");
         }
       }
-    } else {
-      console.log("No .appart-plan3d found in apartment element");
     }
   }
 
@@ -656,7 +644,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       appartItems.forEach((item, index) => {
         const numberEl = item.querySelector(".appart-number");
-        const number = parseInt(numberEl?.innerText || "9999", 10);
+        // Use textContent for fetched elements
+        const numberText = numberEl
+          ? (numberEl.textContent || numberEl.innerText || "").trim()
+          : "";
+        const number = parseInt(numberText || "9999", 10);
         if (!isNaN(number) && number < minNumber) {
           minNumber = number;
           firstAppart = item;
