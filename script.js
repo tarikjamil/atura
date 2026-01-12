@@ -122,60 +122,107 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  function openLevelPopup(levelNumber) {
+  // Cache for fetched floor data
+  const floorDataCache = new Map();
+
+  // Fetch floor page data
+  async function fetchFloorData(levelNumber) {
+    // Check cache first
+    if (floorDataCache.has(levelNumber)) {
+      console.log("Using cached floor data for level:", levelNumber);
+      return floorDataCache.get(levelNumber);
+    }
+
+    const floorPageUrl = `/etages/${levelNumber}`;
+    console.log("Fetching floor page:", floorPageUrl);
+
+    try {
+      const response = await fetch(floorPageUrl);
+      if (!response.ok) {
+        console.error("Failed to fetch floor page:", response.status);
+        return null;
+      }
+
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+
+      // Extract all necessary data from the fetched page
+      const levelImage = doc.querySelector(".etage--img");
+      const appartItems = Array.from(doc.querySelectorAll(".appart-item"));
+      const appartLinks = Array.from(doc.querySelectorAll(".appart-link"));
+
+      console.log(
+        "Fetched floor data - Level image:",
+        levelImage ? "found" : "not found"
+      );
+      console.log("Fetched floor data - Apartment items:", appartItems.length);
+      console.log("Fetched floor data - Apartment links:", appartLinks.length);
+
+      const floorData = {
+        levelImage,
+        appartItems,
+        appartLinks,
+        doc,
+      };
+
+      // Cache the data
+      floorDataCache.set(levelNumber, floorData);
+
+      return floorData;
+    } catch (error) {
+      console.error("Error fetching floor page:", error);
+      return null;
+    }
+  }
+
+  // Open level popup - now async and fetches from /etages/
+  async function openLevelPopup(levelNumber) {
     console.log("Opening level popup for level:", levelNumber);
     currentLevel = levelNumber;
     updateLevelName(levelNumber);
 
     const popup = document.querySelector(".popup");
     const popupPlan = popup.querySelector(".popup--plan");
-    const popupPlan3d = popup.querySelector(".popup--plan-3d");
-    const levelEl = document.querySelector(
-      `.etage--el:nth-child(${levelNumber})`
-    );
 
-    console.log("Level element found:", levelEl);
-    if (!levelEl) {
-      console.log("No level element found for level:", levelNumber);
-      return;
-    }
-
-    const levelImage = levelEl.querySelector(".etage--img");
-    const appartItems = levelEl.querySelectorAll(".appart-item");
-
-    console.log("Level image found:", levelImage);
-    console.log("Apartment items found:", appartItems.length);
-
-    // Show popup with fade animation
+    // Show popup with loading state
     popup.style.display = "grid";
-
-    // Update arrow states after popup is displayed (use requestAnimationFrame to ensure DOM is ready)
-    requestAnimationFrame(() => {
-      updateArrowStates(levelNumber);
-    });
+    popupPlan.innerHTML =
+      '<div style="padding: 2rem; text-align: center; color: #666;">Loading...</div>';
 
     // Animate popup entrance - just fade in
     gsap.fromTo(
       popup,
-      {
-        opacity: 0,
-      },
-      {
-        opacity: 1,
-        duration: 0.3,
-        ease: "power2.out",
-      }
+      { opacity: 0 },
+      { opacity: 1, duration: 0.3, ease: "power2.out" }
     );
+
+    // Fetch floor data from /etages/{levelNumber}
+    const floorData = await fetchFloorData(levelNumber);
+
+    if (!floorData) {
+      popupPlan.innerHTML =
+        '<div style="padding: 2rem; text-align: center; color: #666;">Error loading floor data</div>';
+      return;
+    }
+
+    const { levelImage, appartItems, appartLinks } = floorData;
+
+    // Update arrow states after popup is displayed
+    requestAnimationFrame(() => {
+      updateArrowStates(levelNumber);
+    });
 
     console.log("Popup displayed with fade animation");
 
-    // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
+    // Replace .popup--plan content with fetched data
     popupPlan.innerHTML = "";
     console.log("Cleared popup plan content");
+
     if (levelImage) {
       const clonedImage = levelImage.cloneNode(true);
       popupPlan.appendChild(clonedImage);
-      console.log("Added level image to popup plan:", clonedImage);
+      console.log("Added level image to popup plan");
     }
 
     appartItems.forEach((item, index) => {
@@ -183,53 +230,21 @@ document.addEventListener("DOMContentLoaded", function () {
       if (plan) {
         const clonedPlan = plan.cloneNode(true);
         popupPlan.appendChild(clonedPlan);
-        console.log(`Added apartment plan ${index + 1} to popup:`, clonedPlan);
+        console.log(`Added apartment plan ${index + 1} to popup`);
       }
       const planAbsolute = item.querySelector(".appart-plan-absolute");
       if (planAbsolute) {
         const clonedPlanAbsolute = planAbsolute.cloneNode(true);
-        // Set initial opacity to 0
         gsap.set(clonedPlanAbsolute, { opacity: 0 });
         popupPlan.appendChild(clonedPlanAbsolute);
-        console.log(
-          `Added apartment plan absolute ${index + 1} to popup:`,
-          clonedPlanAbsolute
-        );
+        console.log(`Added apartment plan absolute ${index + 1} to popup`);
       }
     });
 
-    // Update .popup--plan with .etage--img src
-    if (levelImage) {
-      const popupPlanImg = popupPlan.querySelector("img");
-      console.log("Popup plan img found:", popupPlanImg);
-      if (popupPlanImg) {
-        const levelImgSrc = levelImage.getAttribute("src");
-        const levelImgSrcset = levelImage.getAttribute("srcset");
-        const currentSrc = popupPlanImg.getAttribute("src");
-        const currentSrcset = popupPlanImg.getAttribute("srcset");
-
-        console.log("Current popup plan img src:", currentSrc);
-        console.log("Current popup plan img srcset:", currentSrcset);
-        console.log("Will update popup plan img src to:", levelImgSrc);
-        console.log("Will update popup plan img srcset to:", levelImgSrcset);
-
-        popupPlanImg.setAttribute("src", levelImgSrc);
-        if (levelImgSrcset) {
-          popupPlanImg.setAttribute("srcset", levelImgSrcset);
-        }
-
-        // Force image reload
-        popupPlanImg.style.display = "none";
-        popupPlanImg.offsetHeight; // Trigger reflow
-        popupPlanImg.style.display = "";
-
-        // Set .etage--img opacity to 0.4 permanently
-        gsap.set(popupPlanImg, { opacity: 0.4 });
-
-        console.log("Updated .popup--plan img src and srcset");
-      } else {
-        console.error("No img found in .popup--plan");
-      }
+    // Set level image opacity
+    const popupPlanImg = popupPlan.querySelector("img");
+    if (popupPlanImg) {
+      gsap.set(popupPlanImg, { opacity: 0.4 });
     }
 
     // Find the apartment with the smallest .appart-number
@@ -253,31 +268,41 @@ document.addEventListener("DOMContentLoaded", function () {
         minNumber
       );
       fillApartmentData(minAppart, levelImage);
-      // Find the index of the active apartment
-      activeApartmentIndex = Array.from(appartItems).indexOf(minAppart);
+      activeApartmentIndex = appartItems.indexOf(minAppart);
     } else {
       console.log("No minimum apartment found");
     }
 
-    // STEP 3: Click and hover handlers on .appart-plan paths
+    // Setup click and hover handlers on .appart-plan paths
+    setupPlanInteractions(
+      popupPlan,
+      appartItems,
+      activeApartmentIndex,
+      levelImage
+    );
+  }
+
+  // Setup plan interactions (click and hover)
+  function setupPlanInteractions(
+    popupPlan,
+    appartItems,
+    initialActiveIndex,
+    levelImage
+  ) {
     const planPaths = popupPlan.querySelectorAll(".appart-plan path");
-    console.log("Plan paths found:", planPaths.length);
-    console.log("Plan paths elements:", planPaths);
     const planAbsoluteElements = popupPlan.querySelectorAll(
       ".appart-plan-absolute"
     );
+    let activeApartmentIndex = initialActiveIndex;
+
+    console.log("Plan paths found:", planPaths.length);
 
     // Set initial opacity: active apartment at 1, others at 0
     planAbsoluteElements.forEach((el, index) => {
-      if (index === activeApartmentIndex) {
-        gsap.set(el, { opacity: 1 });
-      } else {
-        gsap.set(el, { opacity: 0 });
-      }
+      gsap.set(el, { opacity: index === activeApartmentIndex ? 1 : 0 });
     });
 
     planPaths.forEach((path, index) => {
-      console.log(`Plan path ${index}:`, path);
       const correspondingPlanAbsolute = planAbsoluteElements[index];
 
       // Set initial path opacity to 0
@@ -285,19 +310,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Click handler to change apartment info
       path.addEventListener("click", () => {
-        const clickedIndex = Array.from(planPaths).indexOf(path);
-        const clickedAppart = appartItems[clickedIndex];
-        console.log(
-          "Plan path clicked, index:",
-          clickedIndex,
-          "apartment:",
-          clickedAppart
-        );
+        const clickedAppart = appartItems[index];
+        console.log("Plan path clicked, index:", index);
+
         if (clickedAppart) {
           fillApartmentData(clickedAppart, levelImage);
-          // Update active apartment
           const previousActiveIndex = activeApartmentIndex;
-          activeApartmentIndex = clickedIndex;
+          activeApartmentIndex = index;
 
           // Fade out previous active apartment's .appart-plan-absolute
           if (
@@ -326,69 +345,47 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      // Hover handler to show .appart-plan-absolute with opacity animation
+      // Hover handler
       path.addEventListener("mouseenter", () => {
-        // Use timeline to animate all elements simultaneously
         const tl = gsap.timeline();
 
-        // If hovering a different apartment, fade out the active one
         if (index !== activeApartmentIndex && activeApartmentIndex !== null) {
           const activeAbsolute = planAbsoluteElements[activeApartmentIndex];
           if (activeAbsolute) {
             tl.to(
               activeAbsolute,
-              {
-                opacity: 0,
-                duration: 0.3,
-                ease: "power2.out",
-              },
+              { opacity: 0, duration: 0.3, ease: "power2.out" },
               0
             );
           }
         }
 
-        // Show hovered apartment's .appart-plan-absolute
         if (correspondingPlanAbsolute && index !== activeApartmentIndex) {
           tl.to(
             correspondingPlanAbsolute,
-            {
-              opacity: 1,
-              duration: 0.3,
-              ease: "power2.out",
-            },
+            { opacity: 1, duration: 0.3, ease: "power2.out" },
             0
-          ); // Start at same time (position 0)
+          );
         }
       });
 
       path.addEventListener("mouseleave", () => {
-        // Use timeline to animate all elements simultaneously
         const tl = gsap.timeline();
 
-        // Hide hovered apartment's .appart-plan-absolute (if it's not the active one)
         if (correspondingPlanAbsolute && index !== activeApartmentIndex) {
           tl.to(
             correspondingPlanAbsolute,
-            {
-              opacity: 0,
-              duration: 0.3,
-              ease: "power2.out",
-            },
+            { opacity: 0, duration: 0.3, ease: "power2.out" },
             0
           );
         }
 
-        // Show active apartment's .appart-plan-absolute again
         if (activeApartmentIndex !== null) {
           const activeAbsolute = planAbsoluteElements[activeApartmentIndex];
           if (activeAbsolute) {
             tl.to(
               activeAbsolute,
-              {
-                opacity: 1,
-                duration: 0.3,
-                ease: "power2.out",
-              },
+              { opacity: 1, duration: 0.3, ease: "power2.out" },
               0
             );
           }
@@ -536,15 +533,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Total levels - based on SVG paths in the building
+  const totalLevels = levelPaths.length;
+
   // Update arrow states based on current level
   function updateArrowStates(levelNumber) {
-    const allLevels = document.querySelectorAll(".etage--el");
-    const totalLevels = allLevels.length;
     const downArrow = document.querySelector(".arrow--flex.is--down");
     const upArrow = document.querySelector(".arrow--flex.is--up");
 
     if (downArrow) {
-      if (levelNumber === 1) {
+      if (parseInt(levelNumber) <= 1) {
         downArrow.classList.add("is--disabled");
       } else {
         downArrow.classList.remove("is--disabled");
@@ -552,7 +550,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (upArrow) {
-      if (levelNumber === totalLevels) {
+      if (parseInt(levelNumber) >= totalLevels) {
         upArrow.classList.add("is--disabled");
       } else {
         upArrow.classList.remove("is--disabled");
@@ -562,247 +560,107 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Find next available level (up)
   function getNextLevelUp(currentLevelNum) {
-    const allLevels = document.querySelectorAll(".etage--el");
-    let nextLevel = null;
-
-    for (let i = 0; i < allLevels.length; i++) {
-      const levelNum = i + 1;
-      if (levelNum > currentLevelNum) {
-        nextLevel = levelNum;
-        break;
-      }
+    const num = parseInt(currentLevelNum);
+    if (num < totalLevels) {
+      console.log("Next level up from", num, "is:", num + 1);
+      return num + 1;
     }
-
-    console.log("Next level up from", currentLevelNum, "is:", nextLevel);
-    return nextLevel;
+    console.log("No higher level available");
+    return null;
   }
 
   // Find previous available level (down)
   function getPreviousLevelDown(currentLevelNum) {
-    const allLevels = document.querySelectorAll(".etage--el");
-    let prevLevel = null;
-
-    for (let i = allLevels.length - 1; i >= 0; i--) {
-      const levelNum = i + 1;
-      if (levelNum < currentLevelNum) {
-        prevLevel = levelNum;
-        break;
-      }
+    const num = parseInt(currentLevelNum);
+    if (num > 1) {
+      console.log("Previous level down from", num, "is:", num - 1);
+      return num - 1;
     }
-
-    console.log("Previous level down from", currentLevelNum, "is:", prevLevel);
-    return prevLevel;
+    console.log("No lower level available");
+    return null;
   }
 
-  // Navigate to specific level - no popup movement
-  function navigateToLevel(levelNumber) {
+  // Navigate to specific level - now async and fetches from /etages/
+  async function navigateToLevel(levelNumber) {
     if (levelNumber && levelNumber !== currentLevel) {
       console.log("Navigating to level:", levelNumber);
 
-      // Update level and content without moving popup
+      // Update level and content
       currentLevel = levelNumber;
       updateLevelName(levelNumber);
       updateArrowStates(levelNumber);
 
-      // Update popup content without animation
       const popup = document.querySelector(".popup");
       const popupPlan = popup.querySelector(".popup--plan");
-      const popupPlan3d = popup.querySelector(".popup--plan-3d");
-      const levelEl = document.querySelector(
-        `.etage--el:nth-child(${levelNumber})`
-      );
 
-      if (levelEl) {
-        const levelImage = levelEl.querySelector(".etage--img");
-        const appartItems = levelEl.querySelectorAll(".appart-item");
+      // Show loading state
+      popupPlan.innerHTML =
+        '<div style="padding: 2rem; text-align: center; color: #666;">Loading...</div>';
 
-        // Replace .popup--plan content with .etage--img and all appart-plan RichTexts
-        popupPlan.innerHTML = "";
-        if (levelImage) {
-          const clonedImage = levelImage.cloneNode(true);
-          popupPlan.appendChild(clonedImage);
-        }
+      // Fetch floor data from /etages/{levelNumber}
+      const floorData = await fetchFloorData(levelNumber);
 
-        appartItems.forEach((item, index) => {
-          const plan = item.querySelector(".appart-plan");
-          if (plan) {
-            const clonedPlan = plan.cloneNode(true);
-            popupPlan.appendChild(clonedPlan);
-          }
-          const planAbsolute = item.querySelector(".appart-plan-absolute");
-          if (planAbsolute) {
-            const clonedPlanAbsolute = planAbsolute.cloneNode(true);
-            popupPlan.appendChild(clonedPlanAbsolute);
-          }
-        });
-
-        // Update .popup--plan with .etage--img src
-        if (levelImage) {
-          const popupPlanImg = popupPlan.querySelector("img");
-          if (popupPlanImg) {
-            const levelImgSrc = levelImage.getAttribute("src");
-            const levelImgSrcset = levelImage.getAttribute("srcset");
-            popupPlanImg.setAttribute("src", levelImgSrc);
-            if (levelImgSrcset) {
-              popupPlanImg.setAttribute("srcset", levelImgSrcset);
-            }
-            // Set .etage--img opacity to 0.4 permanently
-            gsap.set(popupPlanImg, { opacity: 0.4 });
-          }
-        }
-
-        // Find the apartment with the smallest .appart-number
-        let minAppart = null;
-        let minNumber = Infinity;
-
-        appartItems.forEach((item) => {
-          const numberEl = item.querySelector(".appart-number");
-          const number = parseInt(numberEl?.innerText || "9999", 10);
-          if (!isNaN(number) && number < minNumber) {
-            minNumber = number;
-            minAppart = item;
-          }
-        });
-
-        // If found, fill the apartment data
-        let activeApartmentIndex = null;
-        if (minAppart) {
-          fillApartmentData(minAppart, levelImage);
-          // Find the index of the active apartment
-          activeApartmentIndex = Array.from(appartItems).indexOf(minAppart);
-        }
-
-        // Add click and hover handlers to plan paths
-        const planPaths = popupPlan.querySelectorAll(".appart-plan path");
-        const planAbsoluteElements = popupPlan.querySelectorAll(
-          ".appart-plan-absolute"
-        );
-
-        // Set initial opacity: active apartment at 1, others at 0
-        planAbsoluteElements.forEach((el, index) => {
-          if (index === activeApartmentIndex) {
-            gsap.set(el, { opacity: 1 });
-          } else {
-            gsap.set(el, { opacity: 0 });
-          }
-        });
-
-        planPaths.forEach((path, index) => {
-          const correspondingPlanAbsolute = planAbsoluteElements[index];
-
-          // Set initial path opacity to 0
-          gsap.set(path, { opacity: 0 });
-
-          // Click handler to change apartment info
-          path.addEventListener("click", () => {
-            const clickedIndex = Array.from(planPaths).indexOf(path);
-            const clickedAppart = appartItems[clickedIndex];
-            if (clickedAppart) {
-              fillApartmentData(clickedAppart, levelImage);
-              // Update active apartment
-              const previousActiveIndex = activeApartmentIndex;
-              activeApartmentIndex = clickedIndex;
-
-              // Fade out previous active apartment's .appart-plan-absolute
-              if (
-                previousActiveIndex !== null &&
-                previousActiveIndex !== activeApartmentIndex
-              ) {
-                const previousActiveAbsolute =
-                  planAbsoluteElements[previousActiveIndex];
-                if (previousActiveAbsolute) {
-                  gsap.to(previousActiveAbsolute, {
-                    opacity: 0,
-                    duration: 0.3,
-                    ease: "power2.out",
-                  });
-                }
-              }
-
-              // Fade in new active apartment's .appart-plan-absolute
-              if (correspondingPlanAbsolute) {
-                gsap.to(correspondingPlanAbsolute, {
-                  opacity: 1,
-                  duration: 0.3,
-                  ease: "power2.out",
-                });
-              }
-            }
-          });
-
-          // Hover handler to show .appart-plan-absolute with opacity animation
-          path.addEventListener("mouseenter", () => {
-            // Use timeline to animate all elements simultaneously
-            const tl = gsap.timeline();
-
-            // If hovering a different apartment, fade out the active one
-            if (
-              index !== activeApartmentIndex &&
-              activeApartmentIndex !== null
-            ) {
-              const activeAbsolute = planAbsoluteElements[activeApartmentIndex];
-              if (activeAbsolute) {
-                tl.to(
-                  activeAbsolute,
-                  {
-                    opacity: 0,
-                    duration: 0.3,
-                    ease: "power2.out",
-                  },
-                  0
-                );
-              }
-            }
-
-            // Show hovered apartment's .appart-plan-absolute
-            if (correspondingPlanAbsolute && index !== activeApartmentIndex) {
-              tl.to(
-                correspondingPlanAbsolute,
-                {
-                  opacity: 1,
-                  duration: 0.3,
-                  ease: "power2.out",
-                },
-                0
-              ); // Start at same time (position 0)
-            }
-          });
-
-          path.addEventListener("mouseleave", () => {
-            // Use timeline to animate all elements simultaneously
-            const tl = gsap.timeline();
-
-            // Hide hovered apartment's .appart-plan-absolute (if it's not the active one)
-            if (correspondingPlanAbsolute && index !== activeApartmentIndex) {
-              tl.to(
-                correspondingPlanAbsolute,
-                {
-                  opacity: 0,
-                  duration: 0.3,
-                  ease: "power2.out",
-                },
-                0
-              );
-            }
-
-            // Show active apartment's .appart-plan-absolute again
-            if (activeApartmentIndex !== null) {
-              const activeAbsolute = planAbsoluteElements[activeApartmentIndex];
-              if (activeAbsolute) {
-                tl.to(
-                  activeAbsolute,
-                  {
-                    opacity: 1,
-                    duration: 0.3,
-                    ease: "power2.out",
-                  },
-                  0
-                );
-              }
-            }
-          });
-        });
+      if (!floorData) {
+        popupPlan.innerHTML =
+          '<div style="padding: 2rem; text-align: center; color: #666;">Error loading floor data</div>';
+        return;
       }
+
+      const { levelImage, appartItems } = floorData;
+
+      // Replace .popup--plan content
+      popupPlan.innerHTML = "";
+      if (levelImage) {
+        const clonedImage = levelImage.cloneNode(true);
+        popupPlan.appendChild(clonedImage);
+      }
+
+      appartItems.forEach((item) => {
+        const plan = item.querySelector(".appart-plan");
+        if (plan) {
+          const clonedPlan = plan.cloneNode(true);
+          popupPlan.appendChild(clonedPlan);
+        }
+        const planAbsolute = item.querySelector(".appart-plan-absolute");
+        if (planAbsolute) {
+          const clonedPlanAbsolute = planAbsolute.cloneNode(true);
+          popupPlan.appendChild(clonedPlanAbsolute);
+        }
+      });
+
+      // Set level image opacity
+      const popupPlanImg = popupPlan.querySelector("img");
+      if (popupPlanImg) {
+        gsap.set(popupPlanImg, { opacity: 0.4 });
+      }
+
+      // Find the apartment with the smallest .appart-number
+      let minAppart = null;
+      let minNumber = Infinity;
+
+      appartItems.forEach((item) => {
+        const numberEl = item.querySelector(".appart-number");
+        const number = parseInt(numberEl?.innerText || "9999", 10);
+        if (!isNaN(number) && number < minNumber) {
+          minNumber = number;
+          minAppart = item;
+        }
+      });
+
+      // If found, fill the apartment data
+      let activeApartmentIndex = null;
+      if (minAppart) {
+        fillApartmentData(minAppart, levelImage);
+        activeApartmentIndex = appartItems.indexOf(minAppart);
+      }
+
+      // Setup interactions
+      setupPlanInteractions(
+        popupPlan,
+        appartItems,
+        activeApartmentIndex,
+        levelImage
+      );
     }
   }
 
