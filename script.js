@@ -1002,39 +1002,39 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       .__gallery_panel{
-        width:min(980px, 100%);
+        width:min(61.25rem, 100%);
         max-height:92vh;
         background:rgba(0,0,0,.08);
         border:1px solid rgba(255,255,255,.16);
-        border-radius:18px;
+        border-radius:1.125rem;
         overflow:hidden;
         position:relative;
         display:flex;
         flex-direction:column;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(0.625rem);
       }
 
       .__gallery_close{
-        position:absolute; top:14px; right:14px;
-        width:42px; height:42px;
+        position:absolute; top:0.875rem; right:0.875rem;
+        width:2.625rem; height:2.625rem;
         border:1px solid rgba(255,255,255,.22);
         border-radius:999px;
         background:rgba(0,0,0,.18);
         color:#fff;
         cursor:pointer;
-        font-size:22px;
-        line-height:40px;
+        font-size:1.375rem;
+        line-height:2.5rem;
         display:flex; align-items:center; justify-content:center;
         transition: transform .18s ease, background .18s ease;
         z-index: 20;
       }
       .__gallery_close:hover{ transform:scale(1.05); background:rgba(0,0,0,.28); }
 
-      .__gallery_body{ padding:16px; overflow:auto; }
+      .__gallery_body{ padding:1rem; overflow:auto; }
 
       /* ==== Splide look ==== */
       .__gallery_panel .splide{ width:100%; }
-      .__gallery_panel .splide__track{ overflow:hidden; border-radius:14px; }
+      .__gallery_panel .splide__track{ overflow:hidden; border-radius:0.875rem; }
 
       /* ratio wrapper */
       .__gallery_panel .splide__slide{
@@ -1045,7 +1045,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .__gallery_media{
         width:100%;
         aspect-ratio: var(--gallery-ratio, 16/9);
-        border-radius:14px;
+        border-radius:0.875rem;
         overflow:hidden;
         background:rgba(0,0,0,.18);
       }
@@ -1058,13 +1058,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
       /* arrows */
       .__gallery_panel .splide__arrow{
-        width:46px; height:46px;
+        width:2.875rem; height:2.875rem;
         border-radius:999px;
         background:rgba(0,0,0,.28);
         border:1px solid rgba(255,255,255,.22);
         opacity:1;
         transition: transform .18s ease, background .18s ease, border-color .18s ease;
-        box-shadow: 0 10px 30px rgba(0,0,0,.20);
+        box-shadow: 0 0.625rem 1.875rem rgba(0,0,0,.20);
       }
       .__gallery_panel .splide__arrow:hover{
         transform: scale(1.06);
@@ -1073,7 +1073,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       .__gallery_panel .splide__arrow svg{
         fill:#fff;
-        width:18px; height:18px;
+        width:1.125rem; height:1.125rem;
       }
       .__gallery_panel .splide__arrow:disabled{
         opacity:.35;
@@ -1083,11 +1083,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
       /* pagination dots */
       .__gallery_panel .splide__pagination{
-        bottom: -10px;
-        padding-top: 14px;
+        bottom: -0.625rem;
+        padding-top: 0.875rem;
       }
       .__gallery_panel .splide__pagination__page{
-        width:8px; height:8px;
+        width:0.5rem; height:0.5rem;
         background: rgba(255,255,255,.35);
         opacity:1;
         transition: transform .18s ease, background .18s ease;
@@ -1099,7 +1099,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       /* fallback slider (without Splide) */
       .__snap{
-        display:flex; gap:12px; overflow-x:auto;
+        display:flex; gap:0.75rem; overflow-x:auto;
         scroll-snap-type:x mandatory;
         -webkit-overflow-scrolling:touch;
       }
@@ -1108,11 +1108,11 @@ document.addEventListener("DOMContentLoaded", function () {
       /* Responsive */
       @media (max-width: 767px){
         .gallery--wrapper.__auto{ padding: 1rem; }
-        .__gallery_panel{ max-height: 94vh; border-radius: 16px; }
-        .__gallery_body{ padding: 12px; }
-        .__gallery_close{ width:40px; height:40px; top:12px; right:12px; }
-        .__gallery_panel .splide__arrow{ width:40px; height:40px; }
-        .__gallery_panel .splide__arrow svg{ width:16px; height:16px; }
+        .__gallery_panel{ max-height: 94vh; border-radius: 1rem; }
+        .__gallery_body{ padding: 0.75rem; }
+        .__gallery_close{ width:2.5rem; height:2.5rem; top:0.75rem; right:0.75rem; }
+        .__gallery_panel .splide__arrow{ width:2.5rem; height:2.5rem; }
+        .__gallery_panel .splide__arrow svg{ width:1rem; height:1rem; }
       }
     `;
     document.head.appendChild(st);
