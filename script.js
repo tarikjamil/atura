@@ -1150,10 +1150,38 @@ document.addEventListener("DOMContentLoaded", function () {
   // Get the apartment page URL from .appart-link
   function getAppartPageUrl() {
     const appartEl = getCurrentAppartEl();
-    if (!appartEl) return null;
+    if (!appartEl) {
+      console.log("No apartment element found");
+      return null;
+    }
 
-    const link = qs(".appart-link", appartEl);
-    if (!link) return null;
+    console.log("Apartment element:", appartEl);
+    console.log(
+      "Apartment element HTML:",
+      appartEl.innerHTML.substring(0, 500)
+    );
+
+    // Try multiple selectors to find the link
+    const link =
+      qs(".appart-link", appartEl) ||
+      qs("a.appart-link", appartEl) ||
+      qs("[class*='appart-link']", appartEl) ||
+      qs("a[href*='/appartements']", appartEl) ||
+      qs("a[href*='/appartments']", appartEl) ||
+      qs("a[href*='/apartment']", appartEl) ||
+      qs("a", appartEl); // fallback to any link
+
+    if (!link) {
+      console.log("No link found inside apartment element");
+      console.log(
+        "All links in document with appart:",
+        qsa("a[class*='appart']")
+      );
+      return null;
+    }
+
+    console.log("Found link:", link);
+    console.log("Link href:", link.getAttribute("href"));
 
     return link.getAttribute("href") || null;
   }
