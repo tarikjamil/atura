@@ -247,39 +247,54 @@ document.addEventListener("DOMContentLoaded", function () {
       gsap.set(popupPlanImg, { opacity: 0.4 });
     }
 
-    // Find the apartment with the smallest .appart-number
-    let minAppart = null;
+    // Find the apartment with the smallest .appart-number (or first one if none have numbers)
+    let firstAppart = null;
+    let firstAppartIndex = 0;
     let minNumber = Infinity;
 
-    appartItems.forEach((item) => {
+    appartItems.forEach((item, index) => {
       const numberEl = item.querySelector(".appart-number");
       const number = parseInt(numberEl?.innerText || "9999", 10);
       if (!isNaN(number) && number < minNumber) {
         minNumber = number;
-        minAppart = item;
+        firstAppart = item;
+        firstAppartIndex = index;
       }
     });
 
-    // If found, fill the apartment details
-    let activeApartmentIndex = null;
-    if (minAppart) {
+    // Default to first apartment if none found by number
+    if (!firstAppart && appartItems.length > 0) {
+      firstAppart = appartItems[0];
+      firstAppartIndex = 0;
+      console.log("No apartment numbers found, defaulting to first apartment");
+    }
+
+    // Fill the first apartment's data
+    if (firstAppart) {
       console.log(
-        "Filling apartment data for apartment with number:",
+        "Filling apartment data for first apartment, index:",
+        firstAppartIndex,
+        "number:",
         minNumber
       );
-      fillApartmentData(minAppart, levelImage);
-      activeApartmentIndex = appartItems.indexOf(minAppart);
+      fillApartmentData(firstAppart, levelImage);
+
+      // Set the first apartment's .appart-plan-absolute to visible
+      const planAbsoluteElements = popupPlan.querySelectorAll(
+        ".appart-plan-absolute"
+      );
+      planAbsoluteElements.forEach((el, index) => {
+        if (index === firstAppartIndex) {
+          gsap.set(el, { opacity: 1 });
+          console.log("Set first apartment overlay to visible, index:", index);
+        }
+      });
     } else {
-      console.log("No minimum apartment found");
+      console.log("No apartments found on this floor");
     }
 
     // Setup click and hover handlers on .appart-plan paths
-    setupPlanInteractions(
-      popupPlan,
-      appartItems,
-      activeApartmentIndex,
-      levelImage
-    );
+    setupPlanInteractions(popupPlan, appartItems, firstAppartIndex, levelImage);
   }
 
   // Setup plan interactions (click and hover)
@@ -634,31 +649,49 @@ document.addEventListener("DOMContentLoaded", function () {
         gsap.set(popupPlanImg, { opacity: 0.4 });
       }
 
-      // Find the apartment with the smallest .appart-number
-      let minAppart = null;
+      // Find the apartment with the smallest .appart-number (or first one)
+      let firstAppart = null;
+      let firstAppartIndex = 0;
       let minNumber = Infinity;
 
-      appartItems.forEach((item) => {
+      appartItems.forEach((item, index) => {
         const numberEl = item.querySelector(".appart-number");
         const number = parseInt(numberEl?.innerText || "9999", 10);
         if (!isNaN(number) && number < minNumber) {
           minNumber = number;
-          minAppart = item;
+          firstAppart = item;
+          firstAppartIndex = index;
         }
       });
 
-      // If found, fill the apartment data
-      let activeApartmentIndex = null;
-      if (minAppart) {
-        fillApartmentData(minAppart, levelImage);
-        activeApartmentIndex = appartItems.indexOf(minAppart);
+      // Default to first apartment if none found by number
+      if (!firstAppart && appartItems.length > 0) {
+        firstAppart = appartItems[0];
+        firstAppartIndex = 0;
+      }
+
+      // Fill the first apartment's data and show its overlay
+      if (firstAppart) {
+        fillApartmentData(firstAppart, levelImage);
+
+        // Set the first apartment's .appart-plan-absolute to visible
+        const planAbsoluteElements = popupPlan.querySelectorAll(
+          ".appart-plan-absolute"
+        );
+        planAbsoluteElements.forEach((el, index) => {
+          if (index === firstAppartIndex) {
+            gsap.set(el, { opacity: 1 });
+          } else {
+            gsap.set(el, { opacity: 0 });
+          }
+        });
       }
 
       // Setup interactions
       setupPlanInteractions(
         popupPlan,
         appartItems,
-        activeApartmentIndex,
+        firstAppartIndex,
         levelImage
       );
     }
