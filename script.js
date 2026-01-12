@@ -125,8 +125,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Cache for fetched floor data
   const floorDataCache = new Map();
 
-  // Store current apartment data for gallery access
-  let currentApartmentData = null;
+  // Store current apartment data for gallery access (on window for cross-IIFE access)
+  window.currentApartmentData = null;
 
   // Fetch individual apartment page data
   async function fetchApartmentData(apartmentUrl) {
@@ -481,7 +481,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Filling apartment data for:", apartmentData);
 
     // Store current apartment for gallery access
-    currentApartmentData = apartmentData;
+    window.currentApartmentData = apartmentData;
 
     // Helper to set text on target elements
     const setTargetText = (selector, value) => {
@@ -1158,19 +1158,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Get gallery images from current apartment data (already fetched)
   function getGalleryImages() {
-    // First try to use cached current apartment data
+    // First try to use cached current apartment data (stored on window for cross-IIFE access)
+    const apartmentData = window.currentApartmentData;
     if (
-      currentApartmentData &&
-      currentApartmentData.gallery &&
-      currentApartmentData.gallery.length > 0
+      apartmentData &&
+      apartmentData.gallery &&
+      apartmentData.gallery.length > 0
     ) {
-      console.log(
-        "Using cached gallery images:",
-        currentApartmentData.gallery.length
-      );
-      return currentApartmentData.gallery.filter((img) =>
-        img?.getAttribute?.("src")
-      );
+      console.log("Using cached gallery images:", apartmentData.gallery.length);
+      return apartmentData.gallery.filter((img) => img?.getAttribute?.("src"));
     }
 
     console.log("No gallery images in current apartment data");
