@@ -1251,7 +1251,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!panel) {
       wrapper.innerHTML = `
         <div class="__gallery_panel" role="dialog" aria-modal="true">
-          <div class="__gallery_copyright">©️ Adrien Barakat</div>
+          <div class="__gallery_copyright">© Adrien Barakat</div>
           <button class="__gallery_close" type="button" aria-label="Close">×</button>
           <div class="__gallery_body"></div>
         </div>
