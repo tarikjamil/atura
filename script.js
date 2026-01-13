@@ -157,6 +157,8 @@ document.addEventListener("DOMContentLoaded", function () {
           doc.querySelector(".appart-charges")?.textContent?.trim() || "",
         visite360:
           doc.querySelector(".appart-visite360")?.textContent?.trim() || "",
+        amenagement:
+          doc.querySelector(".appart-amenagement")?.textContent?.trim() || "",
         plan3d: doc.querySelector(".appart-plan3d"),
         planAbsolute: doc.querySelector(".appart-plan-absolute"),
         plan: doc.querySelector(".appart-plan"),
@@ -502,6 +504,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setTargetText('[data="disponibilite"]', apartmentData.disponibilite);
     setTargetText('[data="loyer"]', apartmentData.loyer);
     setTargetText('[data="charges"]', apartmentData.charges);
+    setTargetText('[data="amenagement"]', apartmentData.amenagement);
 
     // Set visite360 link
     if (apartmentData.visite360) {
