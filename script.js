@@ -876,7 +876,7 @@ document.addEventListener("DOMContentLoaded", function () {
 (() => {
   // ===================== CONFIG ===================== //
   // Ratio for all images (e.g., "16 / 9", "4 / 3", "1 / 1")
-  const GALLERY_RATIO = "16 / 9";
+  const GALLERY_RATIO = "1280 / 853";
 
   // How to display image in ratio:
   // "cover" = fills (may crop) / "contain" = no crop (may have bars)
