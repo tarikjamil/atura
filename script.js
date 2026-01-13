@@ -924,14 +924,16 @@ document.addEventListener("DOMContentLoaded", function () {
     st.id = "__gallery_style__";
     st.textContent = `
       .gallery--wrapper.__auto{
-        position:fixed; inset:0; z-index:9999;
+        position:fixed; inset:0; z-index:999;
         display:none; align-items:center; justify-content:center;
-        background:#15496d;
+        background:#15496d80;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         padding:2.25rem;
       }
 
       .__gallery_panel{
-        width:min(61.25rem, 100%);
+        width:100vw;
         max-height:92vh;
         background:rgba(0,0,0,.08);
         border:1px solid rgba(255,255,255,.16);
@@ -951,13 +953,23 @@ document.addEventListener("DOMContentLoaded", function () {
         background:rgba(0,0,0,.18);
         color:#fff;
         cursor:pointer;
-        font-size:1.375rem;
+        font-size:2rem;
+        padding-top: 0.4rem;
         line-height:2.5rem;
         display:flex; align-items:center; justify-content:center;
         transition: transform .18s ease, background .18s ease;
         z-index: 20;
       }
       .__gallery_close:hover{ transform:scale(1.05); background:rgba(0,0,0,.28); }
+
+      .__gallery_copyright{
+        position:absolute; top:0.875rem; right:4.5rem;
+        color:#fff;
+        font-size:0.875rem;
+        opacity:0.8;
+        z-index: 20;
+        user-select: none;
+      }
 
       .__gallery_body{ padding:1rem; overflow:auto; }
 
@@ -1239,6 +1251,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!panel) {
       wrapper.innerHTML = `
         <div class="__gallery_panel" role="dialog" aria-modal="true">
+          <div class="__gallery_copyright">©️ Adrien Barakat</div>
           <button class="__gallery_close" type="button" aria-label="Close">×</button>
           <div class="__gallery_body"></div>
         </div>
