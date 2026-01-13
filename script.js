@@ -512,8 +512,8 @@ document.addEventListener("DOMContentLoaded", function () {
         .toLowerCase()
         .trim();
       if (disponibiliteValue === "non disponible") {
-        availabilityCircle.style.backgroundColor = "red";
-        console.log("Set availability circle to red (Non Disponible)");
+        availabilityCircle.style.backgroundColor = "orange";
+        console.log("Set availability circle to orange (Non Disponible)");
       } else {
         // Reset to default/green for "Disponible"
         availabilityCircle.style.backgroundColor = "";
