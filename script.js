@@ -980,6 +980,8 @@ document.addEventListener("DOMContentLoaded", function () {
         opacity:1;
         transition: transform .18s ease, background .18s ease, border-color .18s ease;
         box-shadow: 0 0.625rem 1.875rem rgba(0,0,0,.20);
+         display: flex; align-items: center;
+    justify-content: center;
       }
       .__gallery_panel .splide__arrow--prev{
         transform: rotate(180deg);
