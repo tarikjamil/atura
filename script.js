@@ -945,6 +945,17 @@ document.addEventListener("DOMContentLoaded", function () {
         backdrop-filter: blur(0.625rem);
       }
 
+      /* Ratio for screens above 992px */
+      @media (min-width: 992px){
+        .__gallery_panel{
+          width: auto;
+          height: auto;
+          max-width: 90vw;
+          max-height: 80vh;
+          aspect-ratio: 962 / 710;
+        }
+      }
+
       .__gallery_close{
         position:absolute; top:0.875rem; right:0.875rem;
         width:2.625rem; height:2.625rem;
