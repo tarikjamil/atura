@@ -967,6 +967,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       /* arrows */
+      .__gallery_panel .splide__arrows{
+        display: flex;
+        margin-bottom: 0.5rem;
+        gap: 1rem;
+      }
       .__gallery_panel .splide__arrow{
         width:2.875rem; height:2.875rem;
         border-radius:999px;
@@ -1036,7 +1041,8 @@ document.addEventListener("DOMContentLoaded", function () {
         .__gallery_panel{ max-height: 94vh; border-radius: 1rem; }
         .__gallery_body{ padding: 0.75rem; }
         .__gallery_close{ width:2.5rem; height:2.5rem; top:0.75rem; right:0.75rem; }
-        .__gallery_panel .splide__arrow{ width:2.5rem; height:2.5rem; }
+        .__gallery_panel .splide__arrow{ width:2.5rem; height:2.5rem; display: flex; align-items: center;
+    justify-content: center;}
         .__gallery_panel .splide__arrow svg{ width:1rem; height:1rem; }
       }
     `;
