@@ -924,7 +924,7 @@ document.addEventListener("DOMContentLoaded", function () {
     st.id = "__gallery_style__";
     st.textContent = `
       .gallery--wrapper.__auto{
-        position:fixed; inset:0; z-index:999;
+        position:fixed; inset:0; z-index:1006;
         display:none; align-items:center; justify-content:center;
         background:#15496d80;
         backdrop-filter: blur(20px);
