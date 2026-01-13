@@ -1006,6 +1006,7 @@ document.addEventListener("DOMContentLoaded", function () {
         padding: 0;
         gap: 0.5rem;
         border-radius: 300rem;
+        margin-top: 1rem;
       }
       .__gallery_panel .splide__pagination__page{
         width: 0.5rem;
