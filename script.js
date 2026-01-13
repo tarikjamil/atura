@@ -502,6 +502,25 @@ document.addEventListener("DOMContentLoaded", function () {
     setTargetText('[data="surface"]', apartmentData.surface);
     setTargetText('[data="balcon"]', apartmentData.balcon);
     setTargetText('[data="disponibilite"]', apartmentData.disponibilite);
+
+    // Change availability circle color based on disponibilite value
+    const availabilityCircle = document.querySelector(
+      ".popup--availability-circle"
+    );
+    if (availabilityCircle && apartmentData.disponibilite) {
+      const disponibiliteValue = apartmentData.disponibilite
+        .toLowerCase()
+        .trim();
+      if (disponibiliteValue === "non disponible") {
+        availabilityCircle.style.backgroundColor = "red";
+        console.log("Set availability circle to red (Non Disponible)");
+      } else {
+        // Reset to default/green for "Disponible"
+        availabilityCircle.style.backgroundColor = "";
+        console.log("Reset availability circle color (Disponible)");
+      }
+    }
+
     setTargetText('[data="loyer"]', apartmentData.loyer);
     setTargetText('[data="charges"]', apartmentData.charges);
     setTargetText('[data="amenagement"]', apartmentData.amenagement);
