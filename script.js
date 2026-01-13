@@ -615,7 +615,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const upArrow = document.querySelector(".arrow--flex.is--up");
 
     if (downArrow) {
-      if (parseInt(levelNumber) <= 1) {
+      // Disable down arrow if at level 6 or below (minimum is 6)
+      if (parseInt(levelNumber) <= 6) {
         downArrow.classList.add("is--disabled");
       } else {
         downArrow.classList.remove("is--disabled");
@@ -645,11 +646,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // Find previous available level (down)
   function getPreviousLevelDown(currentLevelNum) {
     const num = parseInt(currentLevelNum);
-    if (num > 1) {
+    // Minimum level is 6, can't go below that
+    if (num > 6) {
       console.log("Previous level down from", num, "is:", num - 1);
       return num - 1;
     }
-    console.log("No lower level available");
+    console.log("No lower level available (minimum is level 6)");
     return null;
   }
 
