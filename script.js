@@ -963,7 +963,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .__gallery_close:hover{ transform:scale(1.05); background:rgba(0,0,0,.28); }
 
       .__gallery_copyright{
-        position:absolute; top:0.875rem; right:4.5rem;
+        position:absolute; top:1.5rem; right:4.5rem;
         color:#fff;
         font-size:0.875rem;
         opacity:0.8;
