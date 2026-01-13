@@ -102,12 +102,23 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // STEP 2: Listen to click and hover on any level
-  levelPaths.forEach((path) => {
-    path.addEventListener("click", () => {
-      const selectedLevel = path.getAttribute("level");
-      console.log("Level clicked:", selectedLevel);
-      openLevelPopup(selectedLevel);
-    });
+  levelPaths.forEach((path, index) => {
+    const levelNumber = index + 1;
+
+    // Only make levels 6 and above clickable
+    if (levelNumber >= 6) {
+      path.addEventListener("click", () => {
+        const selectedLevel = path.getAttribute("level");
+        console.log("Level clicked:", selectedLevel);
+        openLevelPopup(selectedLevel);
+      });
+    } else {
+      // First 5 levels are not clickable - add a class or style to indicate
+      path.style.cursor = "default";
+      console.log(
+        `Level ${levelNumber} is not clickable (first 5 levels are disabled)`
+      );
+    }
 
     // Add hover functionality for level number only (no path opacity change)
     path.addEventListener("mouseenter", () => {
