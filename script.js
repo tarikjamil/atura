@@ -522,9 +522,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const disponibiliteValue = apartmentData.disponibilite
         .toLowerCase()
         .trim();
-      if (disponibiliteValue === "non disponible") {
+      if (disponibiliteValue === "réservé") {
         availabilityCircle.style.backgroundColor = "orange";
-        console.log("Set availability circle to orange (Non Disponible)");
+        console.log("Set availability circle to orange (Réservé)");
       } else {
         // Reset to default/green for "Disponible"
         availabilityCircle.style.backgroundColor = "";
