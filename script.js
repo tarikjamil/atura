@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     const floorPageUrl =
-      levelNumber === 10 ? `/etages/10-bi08i` : `/etages/${levelNumber}`;
+      levelNumber == 10 ? `/etages/10-bi08i` : `/etages/${levelNumber}`;
     console.log("Fetching floor page:", floorPageUrl);
 
     try {
@@ -1172,7 +1172,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Current apartment number:", apartmentNumber);
 
     // Fetch the floor page
-    const floorPageUrl = level === 10 ? `/etages/10-bi08i` : `/etages/${level}`;
+    const floorPageUrl = level == 10 ? `/etages/10-bi08i` : `/etages/${level}`;
     console.log("Fetching floor page:", floorPageUrl);
 
     try {
