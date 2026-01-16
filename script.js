@@ -193,7 +193,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return floorDataCache.get(levelNumber);
     }
 
-    const floorPageUrl = `/etages/${levelNumber}`;
+    const floorPageUrl =
+      levelNumber === 10 ? `/etages/10-bi08i` : `/etages/${levelNumber}`;
     console.log("Fetching floor page:", floorPageUrl);
 
     try {
@@ -1171,7 +1172,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Current apartment number:", apartmentNumber);
 
     // Fetch the floor page
-    const floorPageUrl = `/etages/${level}`;
+    const floorPageUrl = level === 10 ? `/etages/10-bi08i` : `/etages/${level}`;
     console.log("Fetching floor page:", floorPageUrl);
 
     try {
