@@ -1679,6 +1679,7 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Loaded apartments from page:", apartments.length);
     console.log("Unique pieces:", Array.from(uniquePieces).sort((a, b) => a - b));
     console.log("Unique etages:", Array.from(uniqueEtages).sort((a, b) => a - b));
+    console.log("First 10 apartment numbers:", apartments.slice(0, 10).map(a => a.number));
     console.log("Sample apartments:", apartments.slice(0, 5));
     
     return apartments;
@@ -1726,13 +1727,26 @@ document.addEventListener("DOMContentLoaded", function () {
   // Update the filter search list
   function updateFilterSearchList() {
     const filterSearch = document.querySelector(".filter--search");
-    if (!filterSearch) return;
+    if (!filterSearch) {
+      console.log("Filter search container not found");
+      return;
+    }
 
     // Clear existing items
     filterSearch.innerHTML = "";
 
     // Get filtered apartments
     const filtered = getFilteredApartments();
+    
+    console.log("Updating filter search list with", filtered.length, "apartments");
+    if (filtered.length > 0) {
+      console.log("First 3 apartments to display:", filtered.slice(0, 3).map(a => ({
+        number: a.number,
+        pieces: a.pieces,
+        etage: a.etage,
+        loyer: a.loyer
+      })));
+    }
 
     // Sort by number
     filtered.sort((a, b) => a.number.localeCompare(b.number));
@@ -1746,6 +1760,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const name = document.createElement("div");
       name.className = "filter--search-name";
       name.textContent = apt.number;
+      
+      console.log("Creating filter item for apartment:", apt.number);
 
       const icon = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -1755,7 +1771,7 @@ document.addEventListener("DOMContentLoaded", function () {
       icon.setAttribute("width", "100%");
       icon.setAttribute("viewBox", "0 0 8 9");
       icon.setAttribute("fill", "none");
-      icon.className = "filter--item-icon";
+      icon.setAttribute("class", "filter--item-icon");
       icon.innerHTML = `<g clip-path="url(#clip0_182_80)"><path d="M0 4.5L8 0V9L0 4.5Z" fill="white"></path></g><defs><clipPath id="clip0_182_80"><rect width="8" height="9" fill="white"></rect></clipPath></defs>`;
 
       item.appendChild(name);
@@ -1784,6 +1800,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     });
+    
+    console.log("Filter search list updated, total items:", filtered.length);
   }
 
   // Update pieces filter display and cycle through values
