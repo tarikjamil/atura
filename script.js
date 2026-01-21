@@ -1582,8 +1582,16 @@ document.addEventListener("DOMContentLoaded", function () {
             aptDoc
               .querySelector(".appart-disponibilite")
               ?.textContent?.trim() || "";
-
-          const etage = parseEtage(number);
+          
+          // First try to get etage from .appart-etage element
+          const etageText = aptDoc.querySelector(".appart-etage")?.textContent?.trim();
+          let etage = etageText ? parseInt(etageText, 10) : null;
+          
+          // If not found or invalid, use the current level from the URL
+          // Since we're fetching from /etages/{level}, the level IS the floor
+          if (!etage || isNaN(etage)) {
+            etage = level;
+          }
 
           apartments.push({
             number,
