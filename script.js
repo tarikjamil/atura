@@ -1539,80 +1539,71 @@ document.addEventListener("DOMContentLoaded", function () {
   // Load apartments from fetched data
   let allApartments = [];
 
-  // Fetch all apartments from /etages/ pages
+  // Load apartments from existing HTML data on the page
   async function loadAllApartments() {
-    console.log("Loading all apartments for filters...");
+    console.log("Loading all apartments from page data...");
     const apartments = [];
 
-    // Levels 6 to totalLevels (assuming 6-20 based on the popup code)
-    for (let level = 6; level <= 20; level++) {
-      const floorPageUrl =
-        level == 10 ? `/etages/10-bi08i` : `/etages/${level}`;
+    // Find all apartment items already on the page (from CMS)
+    // They should be in elements with apartment data
+    const appartItems = document.querySelectorAll('[class*="appart"]');
+    
+    // Also try to find them in any collection list items
+    const collectionItems = document.querySelectorAll('.w-dyn-item');
+    
+    console.log("Found appart items:", appartItems.length);
+    console.log("Found collection items:", collectionItems.length);
 
-      try {
-        const response = await fetch(floorPageUrl);
-        if (!response.ok) continue;
+    // Process collection items which contain apartment data
+    collectionItems.forEach((item) => {
+      // Extract data from the collection item
+      const numberEl = item.querySelector('.appart-number, [data-apt="number"]');
+      const piecesEl = item.querySelector('.appart-pieces, [data-apt="pieces"]');
+      const loyerEl = item.querySelector('.appart-loyer, [data-apt="loyer"]');
+      const disponibiliteEl = item.querySelector('.appart-disponibilite, [data-apt="disponibilite"]');
+      const etageEl = item.querySelector('.appart-etage, [data-apt="etage"]');
+      
+      // Only process if we have at least a number
+      if (!numberEl) return;
+      
+      const number = numberEl.textContent?.trim() || "";
+      if (!number) return;
 
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-
-        // Get all apartment links
-        const appartLinks = Array.from(doc.querySelectorAll(".appart-link"));
-
-        for (const link of appartLinks) {
-          const url = link.getAttribute("href");
-          if (!url) continue;
-
-          // Fetch apartment page
-          const aptResponse = await fetch(url);
-          if (!aptResponse.ok) continue;
-
-          const aptHtml = await aptResponse.text();
-          const aptDoc = parser.parseFromString(aptHtml, "text/html");
-
-          // Extract apartment data
-          const number =
-            aptDoc.querySelector(".appart-number")?.textContent?.trim() || "";
-          const pieces =
-            aptDoc.querySelector(".appart-pieces")?.textContent?.trim() || "";
-          const loyer =
-            aptDoc.querySelector(".appart-loyer")?.textContent?.trim() || "";
-          const disponibilite =
-            aptDoc
-              .querySelector(".appart-disponibilite")
-              ?.textContent?.trim() || "";
-          
-          // First try to get etage from .appart-etage element
-          const etageText = aptDoc.querySelector(".appart-etage")?.textContent?.trim();
-          let etage = etageText ? parseInt(etageText, 10) : null;
-          
-          // If not found or invalid, use the current level from the URL
-          // Since we're fetching from /etages/{level}, the level IS the floor
-          if (!etage || isNaN(etage)) {
-            etage = level;
-          }
-
-          apartments.push({
-            number,
-            pieces: parseInt(pieces, 10) || 0,
-            etage,
-            loyer,
-            loyerValue: parseLoyerValue(loyer),
-            disponibilite,
-            url,
-          });
-
-          // Track unique values
-          if (pieces) uniquePieces.add(parseInt(pieces, 10));
-          if (etage !== null) uniqueEtages.add(etage);
+      const pieces = piecesEl?.textContent?.trim() || "";
+      const loyer = loyerEl?.textContent?.trim() || "";
+      const disponibilite = disponibiliteEl?.textContent?.trim() || "";
+      const etageText = etageEl?.textContent?.trim() || "";
+      
+      // Parse etage
+      let etage = etageText ? parseInt(etageText, 10) : null;
+      
+      // If etage is not available, try to parse from number (e.g., "6.1" -> floor 6)
+      if (!etage || isNaN(etage)) {
+        const match = number.match(/^(\d+)\./);
+        if (match) {
+          etage = parseInt(match[1], 10);
         }
-      } catch (error) {
-        console.error(`Error fetching level ${level}:`, error);
       }
-    }
 
-    console.log("Loaded apartments:", apartments.length);
+      apartments.push({
+        number,
+        pieces: parseInt(pieces, 10) || 0,
+        etage,
+        loyer,
+        loyerValue: parseLoyerValue(loyer),
+        disponibilite,
+        url: null, // Will be determined when clicking
+      });
+
+      // Track unique values
+      if (pieces) uniquePieces.add(parseInt(pieces, 10));
+      if (etage !== null && !isNaN(etage)) uniqueEtages.add(etage);
+    });
+
+    console.log("Loaded apartments from page:", apartments.length);
+    console.log("Unique pieces:", Array.from(uniquePieces).sort((a, b) => a - b));
+    console.log("Unique etages:", Array.from(uniqueEtages).sort((a, b) => a - b));
+    
     return apartments;
   }
 
