@@ -383,6 +383,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Function to select a specific apartment by number in the current popup
   function selectApartmentByNumber(apartmentNumber) {
+    console.log("selectApartmentByNumber called with:", apartmentNumber);
+    
     const popup = document.querySelector(".popup");
     if (!popup || popup.style.display === "none") {
       console.log("Popup is not open");
@@ -391,36 +393,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Get the current level's floor data from cache
     const levelName = document.querySelector('[level="name"]')?.textContent?.trim();
-    if (!levelName) return false;
+    if (!levelName) {
+      console.log("No level name found");
+      return false;
+    }
 
     const levelNumber = parseInt(levelName, 10);
+    console.log("Current level number:", levelNumber);
+    
     const floorData = floorDataCache.get(levelNumber);
     
     if (!floorData) {
-      console.log("Floor data not found in cache");
+      console.log("Floor data not found in cache for level:", levelNumber);
       return false;
     }
 
     const { appartItems } = floorData;
+    console.log("Apartments in floor data:", appartItems.length);
+    console.log("Looking for apartment:", apartmentNumber);
+    console.log("Available apartment numbers:", appartItems.map(apt => apt.number));
     
-    // Find the apartment by number
-    const aptIndex = appartItems.findIndex(
+    // Find the apartment by number - try exact match first
+    let aptIndex = appartItems.findIndex(
       (apt) => apt.number === apartmentNumber
     );
+    
+    // If no exact match, try trimming and comparing
+    if (aptIndex === -1) {
+      aptIndex = appartItems.findIndex(
+        (apt) => apt.number.trim() === apartmentNumber.trim()
+      );
+    }
+    
+    // If still no match, try comparing as strings without any special chars
+    if (aptIndex === -1) {
+      const cleanTarget = apartmentNumber.replace(/[^\d]/g, '');
+      aptIndex = appartItems.findIndex(
+        (apt) => apt.number.replace(/[^\d]/g, '') === cleanTarget
+      );
+    }
 
     if (aptIndex === -1) {
-      console.log("Apartment not found:", apartmentNumber);
+      console.log("Apartment not found after all attempts:", apartmentNumber);
+      console.log("Available apartments:", appartItems.map(apt => ({ number: apt.number, etage: apt.etage })));
       return false;
     }
+
+    console.log("Found apartment at index:", aptIndex);
 
     // Get the plan paths and click the correct one
     const popupPlan = popup.querySelector(".popup--plan");
     const planPaths = popupPlan.querySelectorAll(".appart-plan path");
     
+    console.log("Total plan paths:", planPaths.length);
+    
     if (planPaths[aptIndex]) {
+      console.log("Clicking plan path at index:", aptIndex);
       planPaths[aptIndex].click();
       console.log("Selected apartment:", apartmentNumber);
       return true;
+    } else {
+      console.log("No plan path found at index:", aptIndex);
     }
 
     return false;
@@ -1732,7 +1765,10 @@ document.addEventListener("DOMContentLoaded", function () {
       // Click handler to open apartment in popup
       item.addEventListener("click", async (e) => {
         e.preventDefault();
-        console.log("Opening apartment:", apt.number, "on floor:", apt.etage);
+        console.log("=== FILTER ITEM CLICKED ===");
+        console.log("Apartment number from filter:", apt.number);
+        console.log("Apartment floor from filter:", apt.etage);
+        console.log("Full apartment data:", apt);
 
         // Open the level popup with the correct floor
         if (apt.etage && typeof window.openLevelPopup === "function") {
@@ -1741,6 +1777,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // After popup is open, select the correct apartment
           setTimeout(() => {
             if (typeof window.selectApartmentByNumber === "function") {
+              console.log("Calling selectApartmentByNumber with:", apt.number);
               window.selectApartmentByNumber(apt.number);
             }
           }, 600);
