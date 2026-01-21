@@ -1544,65 +1544,109 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Loading all apartments from page data...");
     const apartments = [];
 
-    // Find all apartment items already on the page (from CMS)
-    // They should be in elements with apartment data
-    const appartItems = document.querySelectorAll('[class*="appart"]');
+    // Try to find floor sections - apartments are grouped by floor
+    // Look for elements that might contain floor numbers
+    const floorSections = document.querySelectorAll('[class*="etage"], [class*="floor"], [class*="level"]');
     
-    // Also try to find them in any collection list items
-    const collectionItems = document.querySelectorAll('.w-dyn-item');
-    
-    console.log("Found appart items:", appartItems.length);
-    console.log("Found collection items:", collectionItems.length);
+    console.log("Found floor sections:", floorSections.length);
 
-    // Process collection items which contain apartment data
-    collectionItems.forEach((item) => {
-      // Extract data from the collection item
-      const numberEl = item.querySelector('.appart-number, [data-apt="number"]');
-      const piecesEl = item.querySelector('.appart-pieces, [data-apt="pieces"]');
-      const loyerEl = item.querySelector('.appart-loyer, [data-apt="loyer"]');
-      const disponibiliteEl = item.querySelector('.appart-disponibilite, [data-apt="disponibilite"]');
-      const etageEl = item.querySelector('.appart-etage, [data-apt="etage"]');
-      
-      // Only process if we have at least a number
-      if (!numberEl) return;
-      
-      const number = numberEl.textContent?.trim() || "";
-      if (!number) return;
+    // If floor sections exist, process apartments within each section
+    if (floorSections.length > 0) {
+      floorSections.forEach((section) => {
+        // Try to find the floor number in this section
+        const floorText = section.querySelector('.etage--name, [data-floor], .floor-number')?.textContent?.trim();
+        let currentFloor = floorText ? parseInt(floorText, 10) : null;
+        
+        console.log("Processing floor section, floor:", currentFloor);
+        
+        // Find apartments in this floor section
+        const sectionApartments = section.querySelectorAll('.w-dyn-item');
+        
+        sectionApartments.forEach((item) => {
+          const numberEl = item.querySelector('.appart-number, [data-apt="number"]');
+          if (!numberEl) return;
+          
+          const number = numberEl.textContent?.trim() || "";
+          if (!number) return;
 
-      const pieces = piecesEl?.textContent?.trim() || "";
-      const loyer = loyerEl?.textContent?.trim() || "";
-      const disponibilite = disponibiliteEl?.textContent?.trim() || "";
-      const etageText = etageEl?.textContent?.trim() || "";
-      
-      // Parse etage
-      let etage = etageText ? parseInt(etageText, 10) : null;
-      
-      // If etage is not available, try to parse from number (e.g., "6.1" -> floor 6)
-      if (!etage || isNaN(etage)) {
-        const match = number.match(/^(\d+)\./);
-        if (match) {
-          etage = parseInt(match[1], 10);
-        }
-      }
+          const piecesEl = item.querySelector('.appart-pieces, [data-apt="pieces"]');
+          const loyerEl = item.querySelector('.appart-loyer, [data-apt="loyer"]');
+          const disponibiliteEl = item.querySelector('.appart-disponibilite, [data-apt="disponibilite"]');
+          
+          const pieces = piecesEl?.textContent?.trim() || "";
+          const loyer = loyerEl?.textContent?.trim() || "";
+          const disponibilite = disponibiliteEl?.textContent?.trim() || "";
+          
+          // Use the floor from the section
+          const etage = currentFloor;
 
-      apartments.push({
-        number,
-        pieces: parseInt(pieces, 10) || 0,
-        etage,
-        loyer,
-        loyerValue: parseLoyerValue(loyer),
-        disponibilite,
-        url: null, // Will be determined when clicking
+          apartments.push({
+            number,
+            pieces: parseInt(pieces, 10) || 0,
+            etage,
+            loyer,
+            loyerValue: parseLoyerValue(loyer),
+            disponibilite,
+            url: null,
+          });
+
+          if (pieces) uniquePieces.add(parseInt(pieces, 10));
+          if (etage !== null && !isNaN(etage)) uniqueEtages.add(etage);
+        });
       });
+    } else {
+      // Fallback: process all collection items
+      console.log("No floor sections found, processing all collection items...");
+      const collectionItems = document.querySelectorAll('.w-dyn-item');
+      
+      console.log("Found collection items:", collectionItems.length);
 
-      // Track unique values
-      if (pieces) uniquePieces.add(parseInt(pieces, 10));
-      if (etage !== null && !isNaN(etage)) uniqueEtages.add(etage);
-    });
+      collectionItems.forEach((item) => {
+        const numberEl = item.querySelector('.appart-number, [data-apt="number"]');
+        const piecesEl = item.querySelector('.appart-pieces, [data-apt="pieces"]');
+        const loyerEl = item.querySelector('.appart-loyer, [data-apt="loyer"]');
+        const disponibiliteEl = item.querySelector('.appart-disponibilite, [data-apt="disponibilite"]');
+        const etageEl = item.querySelector('.appart-etage, [data-apt="etage"]');
+        
+        if (!numberEl) return;
+        
+        const number = numberEl.textContent?.trim() || "";
+        if (!number) return;
+
+        const pieces = piecesEl?.textContent?.trim() || "";
+        const loyer = loyerEl?.textContent?.trim() || "";
+        const disponibilite = disponibiliteEl?.textContent?.trim() || "";
+        const etageText = etageEl?.textContent?.trim() || "";
+        
+        let etage = etageText ? parseInt(etageText, 10) : null;
+        
+        // Try to parse from number (e.g., "6.1" -> floor 6)
+        if (!etage || isNaN(etage)) {
+          const match = number.match(/^(\d+)\./);
+          if (match) {
+            etage = parseInt(match[1], 10);
+          }
+        }
+
+        apartments.push({
+          number,
+          pieces: parseInt(pieces, 10) || 0,
+          etage,
+          loyer,
+          loyerValue: parseLoyerValue(loyer),
+          disponibilite,
+          url: null,
+        });
+
+        if (pieces) uniquePieces.add(parseInt(pieces, 10));
+        if (etage !== null && !isNaN(etage)) uniqueEtages.add(etage);
+      });
+    }
 
     console.log("Loaded apartments from page:", apartments.length);
     console.log("Unique pieces:", Array.from(uniquePieces).sort((a, b) => a - b));
     console.log("Unique etages:", Array.from(uniqueEtages).sort((a, b) => a - b));
+    console.log("Sample apartments:", apartments.slice(0, 5));
     
     return apartments;
   }
