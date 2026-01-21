@@ -1595,12 +1595,28 @@ document.addEventListener("DOMContentLoaded", function () {
         // Find apartments in this floor section
         const sectionApartments = section.querySelectorAll('.w-dyn-item');
         
-        sectionApartments.forEach((item) => {
-          const numberEl = item.querySelector('.appart-number, [data-apt="number"]');
-          if (!numberEl) return;
+        sectionApartments.forEach((item, itemIndex) => {
+          // Try multiple selectors for apartment number (prioritize data attributes)
+          const numberEl = 
+            item.querySelector('[data-app="number"]') ||
+            item.querySelector('.appart-number') || 
+            item.querySelector('[data-apt="number"]');
+          
+          if (!numberEl) {
+            console.log(`Floor ${currentFloor}, item ${itemIndex}: No apartment number element found`);
+            return;
+          }
           
           const number = numberEl.textContent?.trim() || "";
-          if (!number) return;
+          if (!number) {
+            console.log(`Floor ${currentFloor}, item ${itemIndex}: Apartment number is empty`);
+            return;
+          }
+          
+          // Debug: log first few apartments to see what we're getting
+          if (itemIndex === 0) {
+            console.log(`Floor ${currentFloor}, first apartment number:`, number, "from element:", numberEl.className || numberEl.getAttribute('data-app'));
+          }
 
           const piecesEl = item.querySelector('.appart-pieces, [data-apt="pieces"]');
           const loyerEl = item.querySelector('.appart-loyer, [data-apt="loyer"]');
@@ -1634,17 +1650,32 @@ document.addEventListener("DOMContentLoaded", function () {
       
       console.log("Found collection items:", collectionItems.length);
 
-      collectionItems.forEach((item) => {
-        const numberEl = item.querySelector('.appart-number, [data-apt="number"]');
+      collectionItems.forEach((item, itemIndex) => {
+        // Try multiple selectors (prioritize data attributes)
+        const numberEl = 
+          item.querySelector('[data-app="number"]') ||
+          item.querySelector('.appart-number') || 
+          item.querySelector('[data-apt="number"]');
         const piecesEl = item.querySelector('.appart-pieces, [data-apt="pieces"]');
         const loyerEl = item.querySelector('.appart-loyer, [data-apt="loyer"]');
         const disponibiliteEl = item.querySelector('.appart-disponibilite, [data-apt="disponibilite"]');
         const etageEl = item.querySelector('.appart-etage, [data-apt="etage"]');
         
-        if (!numberEl) return;
+        if (!numberEl) {
+          if (itemIndex < 3) console.log(`Item ${itemIndex}: No apartment number element found`);
+          return;
+        }
         
         const number = numberEl.textContent?.trim() || "";
-        if (!number) return;
+        if (!number) {
+          if (itemIndex < 3) console.log(`Item ${itemIndex}: Apartment number is empty`);
+          return;
+        }
+        
+        // Debug first few
+        if (itemIndex < 3) {
+          console.log(`Item ${itemIndex} number:`, number, "from:", numberEl.className || numberEl.getAttribute('data-app'));
+        }
 
         const pieces = piecesEl?.textContent?.trim() || "";
         const loyer = loyerEl?.textContent?.trim() || "";
