@@ -413,28 +413,52 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Looking for apartment:", apartmentNumber);
     console.log("Available apartment numbers:", appartItems.map(apt => apt.number));
     
-    // Find the apartment by number - try exact match first
-    let aptIndex = appartItems.findIndex(
-      (apt) => apt.number === apartmentNumber
-    );
+    // Find the apartment by number - try multiple matching strategies
+    console.log("Matching apartment:", apartmentNumber);
+    console.log("Available apartments:", appartItems.map(apt => apt.number).join(", "));
     
-    // If no exact match, try trimming and comparing
-    if (aptIndex === -1) {
-      aptIndex = appartItems.findIndex(
-        (apt) => apt.number.trim() === apartmentNumber.trim()
-      );
+    let aptIndex = -1;
+    
+    // Strategy 1: Exact match
+    aptIndex = appartItems.findIndex((apt) => apt.number === apartmentNumber);
+    if (aptIndex !== -1) {
+      console.log("✓ Found by exact match at index:", aptIndex);
     }
     
-    // If still no match, try comparing as strings without any special chars
+    // Strategy 2: Case-insensitive match
+    if (aptIndex === -1) {
+      aptIndex = appartItems.findIndex(
+        (apt) => apt.number.toLowerCase() === apartmentNumber.toLowerCase()
+      );
+      if (aptIndex !== -1) {
+        console.log("✓ Found by case-insensitive match at index:", aptIndex);
+      }
+    }
+    
+    // Strategy 3: Trimmed match
+    if (aptIndex === -1) {
+      aptIndex = appartItems.findIndex(
+        (apt) => apt.number.trim().toLowerCase() === apartmentNumber.trim().toLowerCase()
+      );
+      if (aptIndex !== -1) {
+        console.log("✓ Found by trimmed case-insensitive match at index:", aptIndex);
+      }
+    }
+    
+    // Strategy 4: Numbers-only match
     if (aptIndex === -1) {
       const cleanTarget = apartmentNumber.replace(/[^\d]/g, '');
       aptIndex = appartItems.findIndex(
         (apt) => apt.number.replace(/[^\d]/g, '') === cleanTarget
       );
+      if (aptIndex !== -1) {
+        console.log("✓ Found by numbers-only match at index:", aptIndex);
+      }
     }
 
     if (aptIndex === -1) {
-      console.log("Apartment not found after all attempts:", apartmentNumber);
+      console.log("✗ Apartment not found after all strategies");
+      console.log("Searched for:", apartmentNumber);
       console.log("Available apartments:", appartItems.map(apt => ({ number: apt.number, etage: apt.etage })));
       return false;
     }
@@ -1573,89 +1597,58 @@ document.addEventListener("DOMContentLoaded", function () {
   let allApartments = [];
 
   // Load ALL apartments by fetching from /etages/ pages (same as popup logic)
+  // Load ALL apartments by using the existing fetchFloorData (with caching)
   async function loadAllApartments() {
-    console.log("Loading all apartments by fetching from /etages/ pages...");
+    console.log("Loading all apartments using fetchFloorData...");
     const apartments = [];
     
-    // Get unique floor numbers from the page
+    // Get unique floor numbers from the page (only floors >= 6)
     const floorElements = document.querySelectorAll('.etage--name');
     const floors = Array.from(floorElements)
       .map(el => parseInt(el.textContent.trim(), 10))
-      .filter(num => !isNaN(num))
+      .filter(num => !isNaN(num) && num >= 6) // Only floors 6 and above
       .filter((num, idx, arr) => arr.indexOf(num) === idx); // unique
     
     console.log("Detected floors on page:", floors);
     
-    // For each floor, fetch the floor page and get apartment links
+    // Use the existing fetchFloorData function (has caching!)
     for (const level of floors) {
-      const floorPageUrl = level == 10 ? `/etages/10-bi08i` : `/etages/${level}`;
-      console.log(`Fetching floor page for level ${level}: ${floorPageUrl}`);
+      console.log(`Loading floor ${level} apartments...`);
       
       try {
-        const response = await fetch(floorPageUrl);
-        if (!response.ok) {
-          console.error(`Failed to fetch floor ${level} page:`, response.status);
+        const floorData = await fetchFloorData(level);
+        
+        if (!floorData || !floorData.appartItems) {
+          console.warn(`No apartment data for floor ${level}`);
           continue;
         }
         
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
+        const { appartItems } = floorData;
+        console.log(`Floor ${level}: Found ${appartItems.length} apartments`);
         
-        // Get all apartment links from this floor
-        const appartLinks = Array.from(doc.querySelectorAll(".appart-link"));
-        console.log(`Floor ${level}: Found ${appartLinks.length} apartment links`);
+        // appartItems already has all the data we need!
+        appartItems.forEach(apt => {
+          apartments.push({
+            number: apt.number,
+            pieces: parseInt(apt.pieces, 10) || 0,
+            etage: parseInt(apt.etage, 10) || level,
+            loyer: apt.loyer,
+            loyerValue: parseLoyerValue(apt.loyer),
+            disponibilite: apt.disponibilite,
+            url: apt.url,
+          });
+          
+          if (apt.pieces) uniquePieces.add(parseInt(apt.pieces, 10));
+          const etageNum = parseInt(apt.etage, 10) || level;
+          if (!isNaN(etageNum)) uniqueEtages.add(etageNum);
+        });
         
-        // Fetch each individual apartment page
-        const apartmentUrls = appartLinks
-          .map(link => link.getAttribute("href"))
-          .filter(Boolean);
-        
-        for (const url of apartmentUrls) {
-          try {
-            const aptResponse = await fetch(url);
-            if (!aptResponse.ok) {
-              console.error(`Failed to fetch apartment ${url}:`, aptResponse.status);
-              continue;
-            }
-            
-            const aptHtml = await aptResponse.text();
-            const aptDoc = parser.parseFromString(aptHtml, "text/html");
-            
-            // Extract apartment data (same as fetchApartmentData)
-            const number = aptDoc.querySelector(".appart-number")?.textContent?.trim() || "";
-            const pieces = aptDoc.querySelector(".appart-pieces")?.textContent?.trim() || "";
-            const loyer = aptDoc.querySelector(".appart-loyer")?.textContent?.trim() || "";
-            const disponibilite = aptDoc.querySelector(".appart-disponibilite")?.textContent?.trim() || "";
-            const etageText = aptDoc.querySelector(".appart-etage")?.textContent?.trim() || "";
-            
-            if (!number) continue;
-            
-            const etage = etageText ? parseInt(etageText, 10) : level;
-            
-            apartments.push({
-              number,
-              pieces: parseInt(pieces, 10) || 0,
-              etage,
-              loyer,
-              loyerValue: parseLoyerValue(loyer),
-              disponibilite,
-              url,
-            });
-            
-            if (pieces) uniquePieces.add(parseInt(pieces, 10));
-            if (etage !== null && !isNaN(etage)) uniqueEtages.add(etage);
-            
-          } catch (error) {
-            console.error(`Error fetching apartment ${url}:`, error);
-          }
-        }
       } catch (error) {
-        console.error(`Error fetching floor ${level}:`, error);
+        console.error(`Error loading floor ${level}:`, error);
       }
     }
     
-    console.log("Loaded apartments from /etages/ pages:", apartments.length);
+    console.log("Loaded apartments:", apartments.length);
     console.log("Unique pieces:", Array.from(uniquePieces).sort((a, b) => a - b));
     console.log("Unique etages:", Array.from(uniqueEtages).sort((a, b) => a - b));
     console.log("First 10 apartment numbers:", apartments.slice(0, 10).map(a => a.number));
