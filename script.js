@@ -1607,15 +1607,19 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
           }
           
-          const number = numberEl.textContent?.trim() || "";
-          if (!number) {
+          const simpleNumber = numberEl.textContent?.trim() || "";
+          if (!simpleNumber) {
             console.log(`Floor ${currentFloor}, item ${itemIndex}: Apartment number is empty`);
             return;
           }
           
+          // Construct full apartment code: D.D2.{floor}.{number}
+          // Home page shows simple numbers (1, 2, 3), but full code is D.D2.10.4, etc.
+          const fullNumber = `D.D2.${currentFloor}.${simpleNumber}`;
+          
           // Debug: log first few apartments to see what we're getting
           if (itemIndex === 0) {
-            console.log(`Floor ${currentFloor}, first apartment number:`, number, "from element:", numberEl.className || numberEl.getAttribute('data-app'));
+            console.log(`Floor ${currentFloor}, first apartment: simple="${simpleNumber}" -> full="${fullNumber}"`);
           }
 
           const piecesEl = item.querySelector('.appart-pieces, [data-apt="pieces"]');
@@ -1630,7 +1634,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const etage = currentFloor;
 
           apartments.push({
-            number,
+            number: fullNumber,  // Use the constructed full apartment code
             pieces: parseInt(pieces, 10) || 0,
             etage,
             loyer,
@@ -1666,15 +1670,10 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
         
-        const number = numberEl.textContent?.trim() || "";
-        if (!number) {
+        const simpleNumber = numberEl.textContent?.trim() || "";
+        if (!simpleNumber) {
           if (itemIndex < 3) console.log(`Item ${itemIndex}: Apartment number is empty`);
           return;
-        }
-        
-        // Debug first few
-        if (itemIndex < 3) {
-          console.log(`Item ${itemIndex} number:`, number, "from:", numberEl.className || numberEl.getAttribute('data-app'));
         }
 
         const pieces = piecesEl?.textContent?.trim() || "";
@@ -1686,14 +1685,22 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Try to parse from number (e.g., "6.1" -> floor 6)
         if (!etage || isNaN(etage)) {
-          const match = number.match(/^(\d+)\./);
+          const match = simpleNumber.match(/^(\d+)\./);
           if (match) {
             etage = parseInt(match[1], 10);
           }
         }
+        
+        // Construct full apartment code: D.D2.{floor}.{number}
+        const fullNumber = etage ? `D.D2.${etage}.${simpleNumber}` : simpleNumber;
+        
+        // Debug first few
+        if (itemIndex < 3) {
+          console.log(`Item ${itemIndex}: simple="${simpleNumber}" -> full="${fullNumber}" (floor: ${etage})`);
+        }
 
         apartments.push({
-          number,
+          number: fullNumber,  // Use constructed full code
           pieces: parseInt(pieces, 10) || 0,
           etage,
           loyer,
