@@ -186,7 +186,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Fetch floor page data (floor image + all apartment details)
-  async function fetchFloorData(levelNumber) {
+  // Make fetchFloorData globally accessible
+  window.fetchFloorData = async function fetchFloorData(levelNumber) {
     // Check cache first
     if (floorDataCache.has(levelNumber)) {
       console.log("Using cached floor data for level:", levelNumber);
@@ -1616,7 +1617,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(`Loading floor ${level} apartments...`);
       
       try {
-        const floorData = await fetchFloorData(level);
+        const floorData = await window.fetchFloorData(level);
         
         if (!floorData || !floorData.appartItems) {
           console.warn(`No apartment data for floor ${level}`);
