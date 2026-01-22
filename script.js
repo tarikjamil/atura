@@ -1977,6 +1977,7 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
     const filtersParent = document.querySelector(".filters--parent");
+    const filterIcon = document.querySelector(".filter--icon");
 
     if (!filterTrigger || !filtersParent) {
       console.log(
@@ -1991,7 +1992,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let isOpen = false;
 
-    filterTrigger.addEventListener("click", (e) => {
+    // Function to toggle the filter
+    const toggleFilter = (e) => {
       e.preventDefault();
 
       if (isOpen) {
@@ -2011,7 +2013,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       isOpen = !isOpen;
-    });
+    };
+
+    // Add click listener to filter trigger
+    filterTrigger.addEventListener("click", toggleFilter);
+    
+    // Add click listener to filter icon (close button)
+    if (filterIcon) {
+      filterIcon.addEventListener("click", toggleFilter);
+    }
   }
 
   // Initialize filter system
