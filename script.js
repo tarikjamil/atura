@@ -481,7 +481,13 @@ document.addEventListener("DOMContentLoaded", function () {
     
     if (planPaths[aptIndex]) {
       console.log("Clicking plan path at index:", aptIndex);
-      planPaths[aptIndex].click();
+      // SVG elements need a dispatched click event, not .click()
+      const clickEvent = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      planPaths[aptIndex].dispatchEvent(clickEvent);
       console.log("Selected apartment:", apartmentNumber);
       return true;
     } else {
