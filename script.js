@@ -154,9 +154,16 @@ document.addEventListener("DOMContentLoaded", function () {
       const doc = parser.parseFromString(html, "text/html");
 
       // Extract apartment data from the individual apartment page
+      const number = doc.querySelector(".appart-number")?.textContent?.trim() || "";
+      
+      // Get floor number from data-app-id (e.g., "4.25" -> floor 25)
+      const planElement = doc.querySelector(".appart-plan[data-app-id]");
+      const dataAppId = planElement?.getAttribute("data-app-id") || "";
+      const etageFromData = dataAppId.split('.')[1]; // "4.25" -> "25"
+      
       const apartmentData = {
-        number: doc.querySelector(".appart-number")?.textContent?.trim() || "",
-        etage: doc.querySelector(".appart-etage")?.textContent?.trim() || "",
+        number,
+        etage: etageFromData || doc.querySelector(".appart-etage")?.textContent?.trim() || "",
         pieces: doc.querySelector(".appart-pieces")?.textContent?.trim() || "",
         surface:
           doc.querySelector(".appart-surface")?.textContent?.trim() || "",
