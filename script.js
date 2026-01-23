@@ -274,6 +274,10 @@ document.addEventListener("DOMContentLoaded", function () {
     popupPlan.innerHTML =
       '<div style="padding: 2rem; text-align: center; color: #666;">Loading...</div>';
 
+    // Disable page scroll
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
     // Animate popup entrance - just fade in
     gsap.fromTo(
       popup,
@@ -890,6 +894,11 @@ document.addEventListener("DOMContentLoaded", function () {
         onComplete: () => {
           popup.style.display = "none";
           currentLevel = null;
+          
+          // Re-enable page scroll
+          document.documentElement.style.overflow = "";
+          document.body.style.overflow = "";
+          
           console.log("Popup closed with fade animation");
         },
       });
