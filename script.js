@@ -1767,7 +1767,7 @@ document.addEventListener("DOMContentLoaded", function () {
       icon.setAttribute("viewBox", "0 0 8 9");
       icon.setAttribute("fill", "none");
       icon.setAttribute("class", "filter--item-icon");
-      icon.innerHTML = `<g clip-path="url(#clip0_182_80)"><path d="M0 4.5L8 0V9L0 4.5Z" fill="white"></path></g><defs><clipPath id="clip0_182_80"><rect width="8" height="9" fill="white"></rect></clipPath></defs>`;
+      icon.innerHTML = `<g clip-path="url(#clip0_182_80)"><path d="M0 4.5L8 0V9L0 4.5Z" fill="currentColor"></path></g>`;
 
       item.appendChild(name);
       item.appendChild(icon);
