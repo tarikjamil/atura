@@ -1589,6 +1589,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // --------------------- Filter System --------------------- //
 (() => {
+  // Set filters--parent to width 0 immediately on load
+  const filtersParent = document.querySelector(".filters--parent");
+  if (filtersParent) {
+    filtersParent.style.width = "0";
+    filtersParent.style.overflow = "hidden";
+  }
+
   // Parse loyer value (e.g., "CHF 1.942,00" to 1942)
   function parseLoyerValue(loyerString) {
     if (!loyerString) return 0;
