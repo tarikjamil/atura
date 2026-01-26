@@ -2012,8 +2012,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Close
         gsap.to(filtersParent, {
           width: "0%",
-          duration: 0.8,
-          ease: "power2.out",
+          duration: 0.6,
+          ease: "power4.out",
         });
 
         // Animate icons: show open, hide close
@@ -2035,8 +2035,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Open
         gsap.to(filtersParent, {
           width: "100%",
-          duration: 0.8,
-          ease: "power2.out",
+          duration: 0.6,
+          ease: "power4.out",
         });
 
         // Animate icons: hide open, show close
