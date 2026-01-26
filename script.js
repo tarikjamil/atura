@@ -1978,15 +1978,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Toggle filter panel
   function setupFilterToggle() {
-    // Find the filter trigger - it's the first .div-block-19 that contains "FILTRES"
-    const filterTrigger =
-      document.querySelector(".filter--trigger") ||
-      Array.from(document.querySelectorAll(".div-block-19")).find((el) =>
-        el.textContent.includes("FILTRES")
-      );
-
+    const filterTrigger = document.querySelector(".filter--trigger");
     const filtersParent = document.querySelector(".filters--parent");
-    const filterIcon = document.querySelector(".filter--icon");
+    const filterIconOpen = document.querySelector(".filter--icon-open");
+    const filterIconClose = document.querySelector(".filter--icon-close");
 
     if (!filterTrigger || !filtersParent) {
       console.log(
@@ -1999,6 +1994,14 @@ document.addEventListener("DOMContentLoaded", function () {
     filtersParent.style.width = "0";
     filtersParent.style.overflow = "hidden";
 
+    // Set initial icon states
+    if (filterIconOpen) {
+      gsap.set(filterIconOpen, { opacity: 1 });
+    }
+    if (filterIconClose) {
+      gsap.set(filterIconClose, { opacity: 0 });
+    }
+
     let isOpen = false;
 
     // Function to toggle the filter
@@ -2009,16 +2012,48 @@ document.addEventListener("DOMContentLoaded", function () {
         // Close
         gsap.to(filtersParent, {
           width: "0%",
-          duration: 0.5,
-          ease: "power2.inOut",
+          duration: 0.6,
+          ease: "power4.out",
         });
+
+        // Animate icons: show open, hide close
+        if (filterIconOpen) {
+          gsap.to(filterIconOpen, {
+            opacity: 1,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+        }
+        if (filterIconClose) {
+          gsap.to(filterIconClose, {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+        }
       } else {
         // Open
         gsap.to(filtersParent, {
           width: "100%",
-          duration: 0.5,
-          ease: "power2.inOut",
+          duration: 0.6,
+          ease: "power4.out",
         });
+
+        // Animate icons: hide open, show close
+        if (filterIconOpen) {
+          gsap.to(filterIconOpen, {
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+        }
+        if (filterIconClose) {
+          gsap.to(filterIconClose, {
+            opacity: 1,
+            duration: 0.3,
+            ease: "power2.out",
+          });
+        }
       }
 
       isOpen = !isOpen;
@@ -2026,11 +2061,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Add click listener to filter trigger
     filterTrigger.addEventListener("click", toggleFilter);
-    
-    // Add click listener to filter icon (close button)
-    if (filterIcon) {
-      filterIcon.addEventListener("click", toggleFilter);
-    }
   }
 
   // Initialize filter system
