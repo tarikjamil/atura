@@ -5,3 +5,15 @@
 .splide__track {
   overflow: visible;
 }
+
+/* Remove spinner arrows from number inputs */
+.loyer-input::-webkit-outer-spin-button,
+.loyer-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.loyer-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

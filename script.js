@@ -1890,24 +1890,41 @@ document.addEventListener("DOMContentLoaded", function () {
     // Create range inputs
     block21.innerHTML = `
       <div class="loyer-range-wrapper">
-        <input type="number" class="loyer-input loyer-min" placeholder="MIN." />
+        <input type="number" class="loyer-input loyer-min" placeholder="MIN." min="0" />
         <span class="loyer-separator">-</span>
-        <input type="number" class="loyer-input loyer-max" placeholder="MAX." />
+        <input type="number" class="loyer-input loyer-max" placeholder="MAX." min="0" />
       </div>
     `;
 
     const minInput = block21.querySelector(".loyer-min");
     const maxInput = block21.querySelector(".loyer-max");
 
+    // Prevent negative numbers on input
+    const preventNegative = (input) => {
+      input.addEventListener("input", () => {
+        if (input.value < 0) {
+          input.value = 0;
+        }
+      });
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "-" || e.key === "e" || e.key === "E") {
+          e.preventDefault();
+        }
+      });
+    };
+
+    preventNegative(minInput);
+    preventNegative(maxInput);
+
     minInput.addEventListener("input", () => {
       const val = parseFloat(minInput.value);
-      filterState.loyerMin = isNaN(val) ? null : val;
+      filterState.loyerMin = isNaN(val) || val < 0 ? null : val;
       updateFilterSearchList();
     });
 
     maxInput.addEventListener("input", () => {
       const val = parseFloat(maxInput.value);
-      filterState.loyerMax = isNaN(val) ? null : val;
+      filterState.loyerMax = isNaN(val) || val < 0 ? null : val;
       updateFilterSearchList();
     });
   }
