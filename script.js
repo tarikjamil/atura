@@ -1589,13 +1589,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // --------------------- Filter System --------------------- //
 (() => {
-  // Set filters--parent to width 0 immediately on load
-  const filtersParent = document.querySelector(".filters--parent");
-  if (filtersParent) {
-    filtersParent.style.width = "0";
-    filtersParent.style.overflow = "hidden";
-  }
-
   // Parse loyer value (e.g., "CHF 1.942,00" to 1942)
   function parseLoyerValue(loyerString) {
     if (!loyerString) return 0;
@@ -2044,16 +2037,18 @@ document.addEventListener("DOMContentLoaded", function () {
   async function initFilters() {
     console.log("Initializing filter system...");
 
-    // Load all apartments
+    // Setup filter toggle FIRST (synchronously) to set initial width to 0
+    setupFilterToggle();
+
+    // Load all apartments (async)
     allApartments = await loadAllApartments();
 
-    // Setup all filters
+    // Setup all other filters
     setupPiecesFilter();
     setupEtageFilter();
     setupLoyerFilter();
     setupDisponibiliteFilter();
     setupResetButton();
-    setupFilterToggle();
 
     // Initial render of search list
     updateFilterSearchList();
