@@ -1995,12 +1995,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Toggle filter panel
   function setupFilterToggle() {
-    const filterTrigger = document.querySelector(".filter--trigger");
+    const filterTriggers = document.querySelectorAll(".filter--trigger");
     const filtersParent = document.querySelector(".filters--parent");
     const filterIconOpen = document.querySelector(".filter--icon-open");
     const filterIconClose = document.querySelector(".filter--icon-close");
 
-    if (!filterTrigger || !filtersParent) {
+    if (!filterTriggers.length || !filtersParent) {
       console.log(
         "Filter trigger or parent not found - waiting for elements to load"
       );
@@ -2076,8 +2076,10 @@ document.addEventListener("DOMContentLoaded", function () {
       isOpen = !isOpen;
     };
 
-    // Add click listener to filter trigger
-    filterTrigger.addEventListener("click", toggleFilter);
+    // Add click listener to all filter triggers
+    filterTriggers.forEach((trigger) => {
+      trigger.addEventListener("click", toggleFilter);
+    });
   }
 
   // Initialize filter system
