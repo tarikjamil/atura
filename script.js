@@ -1997,8 +1997,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function setupFilterToggle() {
     const filterTriggers = document.querySelectorAll(".filter--trigger");
     const filtersParent = document.querySelector(".filters--parent");
-    const filterIconOpen = document.querySelector(".filter--icon-open");
-    const filterIconClose = document.querySelector(".filter--icon-close");
 
     if (!filterTriggers.length || !filtersParent) {
       console.log(
@@ -2011,19 +2009,28 @@ document.addEventListener("DOMContentLoaded", function () {
     filtersParent.style.width = "0";
     filtersParent.style.overflow = "hidden";
 
-    // Set initial icon states
-    if (filterIconOpen) {
-      gsap.set(filterIconOpen, { opacity: 1 });
-    }
-    if (filterIconClose) {
-      gsap.set(filterIconClose, { opacity: 0 });
-    }
+    // Set initial icon states for all triggers
+    filterTriggers.forEach((trigger) => {
+      const iconOpen = trigger.querySelector(".filter--icon-open");
+      const iconClose = trigger.querySelector(".filter--icon-close");
+      
+      if (iconOpen) {
+        gsap.set(iconOpen, { opacity: 1 });
+      }
+      if (iconClose) {
+        gsap.set(iconClose, { opacity: 0 });
+      }
+    });
 
     let isOpen = false;
 
     // Function to toggle the filter
     const toggleFilter = (e) => {
       e.preventDefault();
+
+      // Get icons from all triggers
+      const allIconsOpen = document.querySelectorAll(".filter--icon-open");
+      const allIconsClose = document.querySelectorAll(".filter--icon-close");
 
       if (isOpen) {
         // Close
@@ -2033,21 +2040,21 @@ document.addEventListener("DOMContentLoaded", function () {
           ease: "power4.out",
         });
 
-        // Animate icons: show open, hide close
-        if (filterIconOpen) {
-          gsap.to(filterIconOpen, {
+        // Animate all icons: show open, hide close
+        allIconsOpen.forEach((icon) => {
+          gsap.to(icon, {
             opacity: 1,
             duration: 0.3,
             ease: "power2.out",
           });
-        }
-        if (filterIconClose) {
-          gsap.to(filterIconClose, {
+        });
+        allIconsClose.forEach((icon) => {
+          gsap.to(icon, {
             opacity: 0,
             duration: 0.3,
             ease: "power2.out",
           });
-        }
+        });
       } else {
         // Open
         gsap.to(filtersParent, {
@@ -2056,21 +2063,21 @@ document.addEventListener("DOMContentLoaded", function () {
           ease: "power4.out",
         });
 
-        // Animate icons: hide open, show close
-        if (filterIconOpen) {
-          gsap.to(filterIconOpen, {
+        // Animate all icons: hide open, show close
+        allIconsOpen.forEach((icon) => {
+          gsap.to(icon, {
             opacity: 0,
             duration: 0.3,
             ease: "power2.out",
           });
-        }
-        if (filterIconClose) {
-          gsap.to(filterIconClose, {
+        });
+        allIconsClose.forEach((icon) => {
+          gsap.to(icon, {
             opacity: 1,
             duration: 0.3,
             ease: "power2.out",
           });
-        }
+        });
       }
 
       isOpen = !isOpen;
