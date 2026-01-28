@@ -1634,42 +1634,45 @@ document.addEventListener("DOMContentLoaded", function () {
     
     console.log("Detected floors on page:", floors);
     
-    // Use the existing fetchFloorData function (has caching!)
-    for (const level of floors) {
-      console.log(`Loading floor ${level} apartments...`);
+    // Fetch all floors in parallel for faster loading
+    const floorPromises = floors.map(level => 
+      window.fetchFloorData(level)
+        .then(floorData => ({ level, floorData }))
+        .catch(error => {
+          console.error(`Error loading floor ${level}:`, error);
+          return { level, floorData: null };
+        })
+    );
+    
+    const results = await Promise.all(floorPromises);
+    
+    // Process all results
+    results.forEach(({ level, floorData }) => {
+      if (!floorData || !floorData.appartItems) {
+        console.warn(`No apartment data for floor ${level}`);
+        return;
+      }
       
-      try {
-        const floorData = await window.fetchFloorData(level);
-        
-        if (!floorData || !floorData.appartItems) {
-          console.warn(`No apartment data for floor ${level}`);
-          continue;
-        }
-        
-        const { appartItems } = floorData;
-        console.log(`Floor ${level}: Found ${appartItems.length} apartments`);
-        
-        // appartItems already has all the data we need!
-        appartItems.forEach(apt => {
-          apartments.push({
-            number: apt.number,
-            pieces: parseInt(apt.pieces, 10) || 0,
-            etage: parseInt(apt.etage, 10) || level,
-            loyer: apt.loyer,
-            loyerValue: parseLoyerValue(apt.loyer),
-            disponibilite: apt.disponibilite,
-            url: apt.url,
-          });
-          
-          if (apt.pieces) uniquePieces.add(parseInt(apt.pieces, 10));
-          const etageNum = parseInt(apt.etage, 10) || level;
-          if (!isNaN(etageNum)) uniqueEtages.add(etageNum);
+      const { appartItems } = floorData;
+      console.log(`Floor ${level}: Found ${appartItems.length} apartments`);
+      
+      // appartItems already has all the data we need!
+      appartItems.forEach(apt => {
+        apartments.push({
+          number: apt.number,
+          pieces: parseInt(apt.pieces, 10) || 0,
+          etage: parseInt(apt.etage, 10) || level,
+          loyer: apt.loyer,
+          loyerValue: parseLoyerValue(apt.loyer),
+          disponibilite: apt.disponibilite,
+          url: apt.url,
         });
         
-      } catch (error) {
-        console.error(`Error loading floor ${level}:`, error);
-      }
-    }
+        if (apt.pieces) uniquePieces.add(parseInt(apt.pieces, 10));
+        const etageNum = parseInt(apt.etage, 10) || level;
+        if (!isNaN(etageNum)) uniqueEtages.add(etageNum);
+      });
+    });
     
     console.log("Loaded apartments:", apartments.length);
     console.log("Unique pieces:", Array.from(uniquePieces).sort((a, b) => a - b));
@@ -1801,23 +1804,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Setup pieces filter with dropdown
   function setupPiecesFilter() {
-    const filterDiv = document.querySelectorAll(".div-block-19.is--filter")[0];
-    if (!filterDiv) return;
+    const select = document.querySelector(".filter-pieces-select");
+    if (!select) {
+      console.warn("Pieces select not found");
+      return;
+    }
 
-    // Replace filter--arrows with select dropdown
-    const arrowsContainer = filterDiv.querySelector(".filter--arrows");
-    if (!arrowsContainer) return;
-
-    arrowsContainer.innerHTML = `
-      <div class="filter-dropdown-wrapper">
-        <select class="filter-select filter-pieces-select">
-          <option value="">TOUS</option>
-        </select>
-      </div>
-    `;
-
-    const select = arrowsContainer.querySelector(".filter-pieces-select");
     const sortedPieces = Array.from(uniquePieces).sort((a, b) => a - b);
+
+    // Clear existing options except first (TOUS)
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
 
     // Populate options
     sortedPieces.forEach((piece) => {
@@ -1837,23 +1835,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Setup etage filter with dropdown
   function setupEtageFilter() {
-    const filterDiv = document.querySelectorAll(".div-block-19.is--filter")[1];
-    if (!filterDiv) return;
+    const select = document.querySelector(".filter-etage-select");
+    if (!select) {
+      console.warn("Etage select not found");
+      return;
+    }
 
-    // Replace filter--arrows with select dropdown
-    const arrowsContainer = filterDiv.querySelector(".filter--arrows");
-    if (!arrowsContainer) return;
-
-    arrowsContainer.innerHTML = `
-      <div class="filter-dropdown-wrapper">
-        <select class="filter-select filter-etage-select">
-          <option value="">TOUS</option>
-        </select>
-      </div>
-    `;
-
-    const select = arrowsContainer.querySelector(".filter-etage-select");
     const sortedEtages = Array.from(uniqueEtages).sort((a, b) => a - b);
+
+    // Clear existing options except first (TOUS)
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
 
     // Populate options
     sortedEtages.forEach((etage) => {
@@ -2080,18 +2073,22 @@ document.addEventListener("DOMContentLoaded", function () {
   async function initFilters() {
     console.log("Initializing filter system...");
 
-    // Setup filter toggle FIRST (synchronously) to set initial width to 0
+    // Setup filter toggle FIRST (synchronously) to show panel immediately
     setupFilterToggle();
-
-    // Load all apartments (async)
-    allApartments = await loadAllApartments();
-
-    // Setup all other filters
-    setupPiecesFilter();
-    setupEtageFilter();
+    
+    // Setup UI elements that don't require data (shows filter structure immediately)
     setupLoyerFilter();
     setupDisponibiliteFilter();
     setupResetButton();
+
+    // Load all apartments (async) - optimized with parallel fetching
+    console.time("Load apartments");
+    allApartments = await loadAllApartments();
+    console.timeEnd("Load apartments");
+
+    // Setup filters that depend on loaded data
+    setupPiecesFilter();
+    setupEtageFilter();
 
     // Initial render of search list
     updateFilterSearchList();
