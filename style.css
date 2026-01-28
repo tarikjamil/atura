@@ -17,3 +17,26 @@
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* Filter dropdown styles */
+.filter-dropdown-wrapper {
+  width: 100%;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background-color: transparent;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+}
+
+.filter-select:focus {
+  border-color: currentColor;
+  opacity: 0.8;
+}

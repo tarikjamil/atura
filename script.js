@@ -1799,84 +1799,76 @@ document.addEventListener("DOMContentLoaded", function () {
     console.log("Filter search list updated, total items:", filtered.length);
   }
 
-  // Update pieces filter display and cycle through values
+  // Setup pieces filter with dropdown
   function setupPiecesFilter() {
     const filterDiv = document.querySelectorAll(".div-block-19.is--filter")[0];
     if (!filterDiv) return;
 
-    const numberTitle = filterDiv.querySelector(".number--title");
-    const prevBtn = filterDiv.querySelector(".filter--btn.is--prev");
-    const nextBtn = filterDiv.querySelector(".filter--btn.is--next");
+    // Replace filter--arrows with select dropdown
+    const arrowsContainer = filterDiv.querySelector(".filter--arrows");
+    if (!arrowsContainer) return;
 
+    arrowsContainer.innerHTML = `
+      <div class="filter-dropdown-wrapper">
+        <select class="filter-select filter-pieces-select">
+          <option value="">TOUS</option>
+        </select>
+      </div>
+    `;
+
+    const select = arrowsContainer.querySelector(".filter-pieces-select");
     const sortedPieces = Array.from(uniquePieces).sort((a, b) => a - b);
-    let currentIndex = -1; // -1 means "all"
 
-    function updateDisplay() {
-      if (currentIndex === -1) {
-        numberTitle.textContent = "TOUS";
-        filterState.pieces = null;
-      } else {
-        numberTitle.textContent = sortedPieces[currentIndex];
-        filterState.pieces = sortedPieces[currentIndex];
-      }
+    // Populate options
+    sortedPieces.forEach((piece) => {
+      const option = document.createElement("option");
+      option.value = piece;
+      option.textContent = piece;
+      select.appendChild(option);
+    });
+
+    // Handle change
+    select.addEventListener("change", () => {
+      const value = select.value;
+      filterState.pieces = value === "" ? null : parseInt(value);
       updateFilterSearchList();
-    }
-
-    prevBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      currentIndex--;
-      if (currentIndex < -1) currentIndex = sortedPieces.length - 1;
-      updateDisplay();
     });
-
-    nextBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      currentIndex++;
-      if (currentIndex >= sortedPieces.length) currentIndex = -1;
-      updateDisplay();
-    });
-
-    updateDisplay();
   }
 
-  // Update etage filter display and cycle through values
+  // Setup etage filter with dropdown
   function setupEtageFilter() {
     const filterDiv = document.querySelectorAll(".div-block-19.is--filter")[1];
     if (!filterDiv) return;
 
-    const numberTitle = filterDiv.querySelector(".number--title");
-    const prevBtn = filterDiv.querySelector(".filter--btn.is--prev");
-    const nextBtn = filterDiv.querySelector(".filter--btn.is--next");
+    // Replace filter--arrows with select dropdown
+    const arrowsContainer = filterDiv.querySelector(".filter--arrows");
+    if (!arrowsContainer) return;
 
+    arrowsContainer.innerHTML = `
+      <div class="filter-dropdown-wrapper">
+        <select class="filter-select filter-etage-select">
+          <option value="">TOUS</option>
+        </select>
+      </div>
+    `;
+
+    const select = arrowsContainer.querySelector(".filter-etage-select");
     const sortedEtages = Array.from(uniqueEtages).sort((a, b) => a - b);
-    let currentIndex = -1; // -1 means "all"
 
-    function updateDisplay() {
-      if (currentIndex === -1) {
-        numberTitle.textContent = "TOUS";
-        filterState.etage = null;
-      } else {
-        numberTitle.textContent = sortedEtages[currentIndex];
-        filterState.etage = sortedEtages[currentIndex];
-      }
+    // Populate options
+    sortedEtages.forEach((etage) => {
+      const option = document.createElement("option");
+      option.value = etage;
+      option.textContent = etage;
+      select.appendChild(option);
+    });
+
+    // Handle change
+    select.addEventListener("change", () => {
+      const value = select.value;
+      filterState.etage = value === "" ? null : parseInt(value);
       updateFilterSearchList();
-    }
-
-    prevBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      currentIndex--;
-      if (currentIndex < -1) currentIndex = sortedEtages.length - 1;
-      updateDisplay();
     });
-
-    nextBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      currentIndex++;
-      if (currentIndex >= sortedEtages.length) currentIndex = -1;
-      updateDisplay();
-    });
-
-    updateDisplay();
   }
 
   // Setup loyer range filter
@@ -1966,18 +1958,13 @@ document.addEventListener("DOMContentLoaded", function () {
       filterState.loyerMax = null;
       filterState.disponibleOnly = false;
 
-      // Reset UI
-      const filterDivs = document.querySelectorAll(".div-block-19.is--filter");
+      // Reset pieces select
+      const piecesSelect = document.querySelector(".filter-pieces-select");
+      if (piecesSelect) piecesSelect.value = "";
 
-      // Reset pieces
-      if (filterDivs[0]) {
-        filterDivs[0].querySelector(".number--title").textContent = "TOUS";
-      }
-
-      // Reset etage
-      if (filterDivs[1]) {
-        filterDivs[1].querySelector(".number--title").textContent = "TOUS";
-      }
+      // Reset etage select
+      const etageSelect = document.querySelector(".filter-etage-select");
+      if (etageSelect) etageSelect.value = "";
 
       // Reset loyer inputs
       const minInput = document.querySelector(".loyer-min");
@@ -2005,24 +1992,24 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Set initial width to 0
-    filtersParent.style.width = "0";
+    // Set initial width to 100% (open by default)
+    filtersParent.style.width = "100%";
     filtersParent.style.overflow = "hidden";
 
-    // Set initial icon states for all triggers
+    // Set initial icon states for all triggers (start in open state)
     filterTriggers.forEach((trigger) => {
       const iconOpen = trigger.querySelector(".filter--icon-open");
       const iconClose = trigger.querySelector(".filter--icon-close");
       
       if (iconOpen) {
-        gsap.set(iconOpen, { opacity: 1 });
+        gsap.set(iconOpen, { opacity: 0 });
       }
       if (iconClose) {
-        gsap.set(iconClose, { opacity: 0 });
+        gsap.set(iconClose, { opacity: 1 });
       }
     });
 
-    let isOpen = false;
+    let isOpen = true; // Start as open
 
     // Function to toggle the filter
     const toggleFilter = (e) => {
