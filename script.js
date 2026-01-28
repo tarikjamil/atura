@@ -1951,13 +1951,17 @@ document.addEventListener("DOMContentLoaded", function () {
       filterState.loyerMax = null;
       filterState.disponibleOnly = false;
 
-      // Reset pieces select
+      // Reset pieces select to first option (TOUS)
       const piecesSelect = document.querySelector(".filter-pieces-select");
-      if (piecesSelect) piecesSelect.value = "";
+      if (piecesSelect) {
+        piecesSelect.selectedIndex = 0;
+      }
 
-      // Reset etage select
+      // Reset etage select to first option (TOUS)
       const etageSelect = document.querySelector(".filter-etage-select");
-      if (etageSelect) etageSelect.value = "";
+      if (etageSelect) {
+        etageSelect.selectedIndex = 0;
+      }
 
       // Reset loyer inputs
       const minInput = document.querySelector(".loyer-min");
