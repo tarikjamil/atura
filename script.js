@@ -1989,24 +1989,28 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Set initial width to 100% (open by default)
-    filtersParent.style.width = "100%";
+    // Check screen width to determine initial state
+    const isMobile = window.innerWidth < 992;
+    const initiallyOpen = !isMobile; // Open on desktop, closed on mobile
+
+    // Set initial width based on screen size
+    filtersParent.style.width = initiallyOpen ? "100%" : "0";
     filtersParent.style.overflow = "hidden";
 
-    // Set initial icon states for all triggers (start in open state)
+    // Set initial icon states for all triggers
     filterTriggers.forEach((trigger) => {
       const iconOpen = trigger.querySelector(".filter--icon-open");
       const iconClose = trigger.querySelector(".filter--icon-close");
       
       if (iconOpen) {
-        gsap.set(iconOpen, { opacity: 0 });
+        gsap.set(iconOpen, { opacity: initiallyOpen ? 0 : 1 });
       }
       if (iconClose) {
-        gsap.set(iconClose, { opacity: 1 });
+        gsap.set(iconClose, { opacity: initiallyOpen ? 1 : 0 });
       }
     });
 
-    let isOpen = true; // Start as open
+    let isOpen = initiallyOpen;
 
     // Function to toggle the filter
     const toggleFilter = (e) => {
