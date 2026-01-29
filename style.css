@@ -25,7 +25,7 @@
 
 .filter-select {
   width: 100%;
-  padding: 8px 32px 8px 12px;
+  padding: 8px 40px 8px 12px;
   font-family: inherit;
   font-size: inherit;
   color: inherit;
@@ -34,6 +34,8 @@
   border-radius: 4px;
   cursor: pointer;
   outline: none;
+  background-position: right 12px center;
+  background-size: 12px;
 }
 
 .filter-select:focus {
