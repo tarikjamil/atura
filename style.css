@@ -23,7 +23,10 @@
   width: 100%;
 }
 
-
+.filter-select {
+  background-position: right 1rem center;
+  background-size: 1rem;
+}
 
 .filter-select:focus {
   border-color: currentColor;
